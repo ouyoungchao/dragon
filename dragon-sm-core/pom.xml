@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>dragon-sm-core</artifactId>
+	<packaging>jar</packaging>
+  	<parent>
+		<groupId>com.shiliu.dragon</groupId>
+		<artifactId>dragon-frame</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+  	</parent>
+  	
+  	<dependencies>
+		<!--sms服务依赖-->
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>tea-openapi</artifactId>
+			<version>0.0.13</version>
+		</dependency>
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>dysmsapi20170525</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+
+  		<!--spring security 版本不确定的-->
+  		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+        	<artifactId>spring-cloud-security</artifactId>
+        	<version>1.2.1.RELEASE</version>
+		</dependency>
+  		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-oauth2</artifactId>
+			<version>1.2.1.RELEASE</version>
+		</dependency>
+		
+		<!--数据存储的包  -->
+  		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		
+		<!--第三方登陆  -->
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-web</artifactId>
+		</dependency>
+		
+		<!-- 常用工具包 -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+		</dependency>
+  		 
+  	</dependencies>
+</project>

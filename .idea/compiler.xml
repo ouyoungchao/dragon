@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="caifeng-security-browser" />
+        <module name="caifeng-security-core" />
+        <module name="caifeng-security-demo" />
+        <module name="dragon-app" />
+        <module name="dragon-sm" />
+        <module name="dragon-sm-core" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="caifeng-security" target="1.8" />
+      <module name="caifeng-security-browser" target="1.8" />
+      <module name="caifeng-security-core" target="1.8" />
+      <module name="caifeng-security-demo" target="1.8" />
+      <module name="dragon-app" target="1.8" />
+      <module name="dragon-sm" target="1.8" />
+      <module name="dragon-sm-core" target="1.8" />
+      <module name="shiliu-dragon" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

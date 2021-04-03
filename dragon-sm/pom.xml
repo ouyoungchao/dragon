@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>dragon-sm</artifactId>
+	<packaging>jar</packaging>
+	<parent>
+		<groupId>com.shiliu.dragon</groupId>
+		<artifactId>dragon-frame</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+    
+    <dependencies>
+		<dependency>
+			<groupId>com.shiliu.dragon</groupId>
+			<artifactId>dragon-sm-core</artifactId>
+			<version>${dragon.version}</version>
+		</dependency>
+		
+		<!-- 集群环境中的session管理 -->
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session</artifactId>
+		</dependency>
+	</dependencies>
+</project>
