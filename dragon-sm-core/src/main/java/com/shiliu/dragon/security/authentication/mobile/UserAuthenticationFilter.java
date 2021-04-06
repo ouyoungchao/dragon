@@ -1,12 +1,10 @@
 package com.shiliu.dragon.security.authentication.mobile;
 
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.*;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 
@@ -17,54 +15,55 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 
-public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFilter  {
 
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
-    private String usernameParameter = "username";
-    private String passwordParameter = "password";
+    private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
+    private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
     private boolean postOnly = true;
+    private SessionAuthenticationStrategy sessionStrategy = new DragonSessionAuthenticationStrategy();
 
 
     public UserAuthenticationFilter() {
-        //super(new AntPathRequestMatcher("/dragon/authentication/user", "POST"));
+        super(new AntPathRequestMatcher("/dragon/authentication/user", "POST"));
     }
 
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        if (this.postOnly && !request.getMethod().equals("POST")) {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
+       System.out.println("UserAuthenticationFilter begin attemptAuthentication");
+        if (postOnly && !request.getMethod().equals("POST")) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
-        } else {
-
-            //UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
-            //this.setDetails(request, authRequest);
-
-            //return this.getAuthenticationManager().authenticate(null);
-            String username = this.obtainUsername(request);
-            String password = this.obtainPassword(request);
-            if (username == null) {
-                username = "";
-            }
-
-            if (password == null) {
-                password = "";
-            }
-            username = username.trim();
-            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
-            this.setDetails(request, authRequest);
-            return this.getAuthenticationManager().authenticate(authRequest);
         }
+        String username = obtainUsername(request);
+
+        String password = obtainPassword(request);
+
+        if (username == null) {
+            username = "";
+        }
+
+        if (password == null) {
+            password = "";
+        }
+
+        username = username.trim();
+
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+
+        // Allow subclasses to set the "details" property
+        setDetails(request, authRequest);
+
+        return super.getAuthenticationManager().authenticate(authRequest);
     }
+
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        System.out.print("UserAuthenticationFilter begin doFilter");
-       super.doFilter(req,res,chain);
-         /*HttpServletRequest request = (HttpServletRequest)req;
+        System.out.println("UserAuthenticationFilter begin doFilter");
+        HttpServletRequest request = (HttpServletRequest)req;
         HttpServletResponse response = (HttpServletResponse)res;
-       // chain.doFilter(req,res);
         if (!this.requiresAuthentication(request, response)) {
             chain.doFilter(request, response);
         } else {
@@ -88,25 +87,25 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
                 this.unsuccessfulAuthentication(request, response, var9);
                 return;
             }
-
-            if (this.continueChainBeforeSuccessfulAuthentication) {
-                chain.doFilter(request, response);
-            }
-
             this.successfulAuthentication(request, response, chain, authResult);
-        }*/
+        }
+    }
+
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        super.setAuthenticationManager(authenticationManager);
     }
 
     protected String obtainPassword(HttpServletRequest request) {
-        return request.getParameter(this.passwordParameter);
+        return request.getParameter(passwordParameter).replaceAll(" ", "+");
     }
 
     protected String obtainUsername(HttpServletRequest request) {
-        return request.getParameter(this.usernameParameter);
+        return request.getParameter(usernameParameter);
     }
 
-    protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
-        authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+    protected void setDetails(HttpServletRequest request,
+                              UsernamePasswordAuthenticationToken authRequest) {
+        authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 
     public void setUsernameParameter(String usernameParameter) {
@@ -122,6 +121,12 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
     public void setPostOnly(boolean postOnly) {
         this.postOnly = postOnly;
     }
-    
 
+    public final String getUsernameParameter() {
+        return usernameParameter;
+    }
+
+    public final String getPasswordParameter() {
+        return passwordParameter;
+    }
 }

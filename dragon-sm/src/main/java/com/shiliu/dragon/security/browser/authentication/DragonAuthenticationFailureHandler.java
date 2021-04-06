@@ -6,11 +6,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.mysql.jdbc.StringUtils;
+import com.shiliu.dragon.common.utils.JsonUtil;
 import com.shiliu.dragon.security.browser.support.SimpleResponse;
 import com.shiliu.dragon.security.properties.LoginType;
 import com.shiliu.dragon.security.properties.SecurityProperties;
-import org.hibernate.validator.internal.util.privilegedactions.NewInstance;
+import com.shiliu.dragon.security.validate.code.AuthResponse;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,15 +40,9 @@ public class DragonAuthenticationFailureHandler extends
             throws IOException, ServletException {
         logger.error(TAG, "authentication failed ", exception);
 //		exception.printStackTrace();
-        if (LoginType.JSON.equals(securityProperties.getBrowser().getLoginType())) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            response.setContentType("application/json;charset=UTF-8");
-            //将authentication以json的形式输出到前端
-            if (!StringUtils.isEmptyOrWhitespaceOnly(exception.getMessage())) {
-                response.getWriter().write(objectMap.writeValueAsString(new SimpleResponse(exception.getMessage())));
-            }
-        } else {
-            super.onAuthenticationFailure(request, response, exception);
-        }
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.setContentType("application/json;charset=UTF-8");
+        //将authentication以json的形式输出到前端
+        response.getWriter().write(JsonUtil.toJson(AuthResponse.AUTH_FAILED));
     }
 }

@@ -6,7 +6,8 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.shiliu.dragon.security.utils.JsonUtil;
+import com.shiliu.dragon.common.cache.SessionCache;
+import com.shiliu.dragon.common.utils.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
@@ -25,7 +26,6 @@ public class ValidateCodeController {
 
 	public static final String SESSION_KEY = "SESSION_KEY_IMAGE_CODE";
 	
-	private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
 
 	@Autowired
 	private SecurityProperties securityProperties;
@@ -44,7 +44,7 @@ public class ValidateCodeController {
 		//生成验证码
 		ImageCode imageCode = (ImageCode) imageCodeGenerator.generate(request);
 		//保存到session中
-		sessionStrategy.setAttribute(new ServletWebRequest(request), SESSION_KEY, imageCode);
+		SessionCache.addSession(SESSION_KEY, imageCode);
 		//输出到前台
 		ImageIO.write(imageCode.getImage(), "JPEG", response.getOutputStream());
 	}
@@ -71,8 +71,10 @@ public class ValidateCodeController {
 		}
 		//生成验证码
 		ValidateCode smsCode = smsCodeGenerator.generate(request);
+		ServletWebRequest servletWebRequest  = new ServletWebRequest(request);
 		//保存到session中
-		sessionStrategy.setAttribute(new ServletWebRequest(request), SESSION_KEY, smsCode);
+		System.out.println("smscode = " + smsCode + " and moble = " + mobile + " request = " + servletWebRequest.hashCode());
+		SessionCache.addSession(mobile, smsCode);
 		smsCodeSender.sendSmsCode(mobile, smsCode.getCode());
 		return JsonUtil.toJson(SmsResponse.SUCCESS);
 	}

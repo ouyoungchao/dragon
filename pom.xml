@@ -47,6 +47,8 @@
 	
 	<!-- 子模块添加 -->
 	<modules>
+<!--		<module>dragon-base</module>-->
+		<module>dragon-common</module>
 		<module>dragon-sm</module>
 		<module>dragon-sm-core</module>
 		<module>dragon-app</module>

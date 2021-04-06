@@ -1,14 +1,10 @@
 package com.shiliu.dragon.web.controller;
 
-import com.shiliu.dragon.dto.User;
-import com.shiliu.dragon.dto.UserQueryCondition;
-import com.shiliu.dragon.security.utils.JsonUtil;
+import com.shiliu.dragon.common.utils.JsonUtil;
+import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.code.*;
-import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,16 +13,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,22 +27,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.shiliu.dragon.dto.User;
-import com.shiliu.dragon.dto.UserQueryCondition;
-import com.shiliu.dragon.exception.UserNotFoundException;
-import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.web.context.request.ServletWebRequest;
 
 @RestController
 @RequestMapping("/dragon/user")
 public class UserController {
 
-	private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
+	public static final String REGEX_PASSWORD_STRONG = "^(?![0-9]+$)(?![^0-9]+$)(?![a-zA-Z]+$)(?![^a-zA-Z]+$)(?![a-zA-Z0-9]+$)[a-zA-Z0-9\\S]{8,}$";
 
-	/**
+
+/*	*//**
 	 * @author Ethan
 	 * @desc 查询用户信息列表
-	 */
+	 *//*
 	@GetMapping()
 	@ApiOperation(value = "查询用户信息列表")
 	public List<User> query(UserQueryCondition condition,
@@ -71,7 +59,7 @@ public class UserController {
 		users.add(new User());
 		users.add(new User());
 		return users;
-	}
+	}*/
 	
 	/**
 	 * @author Ethan
@@ -83,7 +71,7 @@ public class UserController {
 //		throw new UserNotFoundException(userId);
 		
 		System.out.println("getInfo process");
-		return null;
+		return new User();
 	}
 	
 	/**
@@ -138,15 +126,12 @@ public class UserController {
 		System.out.print("Begin register " + userContext);
 		User user = JsonUtil.readValue(userContext,User.class);
 		try {
-			validate(new ServletWebRequest(request),user);
-
+			validUser(new ServletWebRequest(request),user);
 		} catch (ServletRequestBindingException e) {
 			System.out.println("Check smsCode ServletRequestBindingException");
-			e.printStackTrace();
 			return JsonUtil.toJson(SmsResponse.SMSNOTEXIST);
 		} catch (ValidateCodeException e) {
 			System.out.println("Check smsCode IOException");
-			e.printStackTrace();
 			return e.getMessage();
 		}
 		System.out.println("user detail is " + user);
@@ -154,20 +139,89 @@ public class UserController {
 		return JsonUtil.toJson(UserResponse.REGISTER_SUCCESS);
 	}
 
-	public boolean validate(ServletWebRequest request,User user) throws ServletRequestBindingException, ValidateCodeException {
-		//系统生成值
-		ValidateCode codeInSession = (ValidateCode) sessionStrategy
-				.getAttribute(request, ValidateCodeController.SESSION_KEY);
+	/**
+	 * 校验sm是否合法
+	 * @param request
+	 * @param user
+	 * @return
+	 * @throws ServletRequestBindingException
+	 * @throws ValidateCodeException
+	 */
+	private boolean validUser(ServletWebRequest request,User user) throws ServletRequestBindingException, ValidateCodeException {
 		//请求参数值
 		if(user == null){
 			throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
 		}
-		String codeInRequest = user.getSmsCode();
-		System.out.println("codeInRequest = " + codeInRequest + " and codeInSession = " + codeInSession );
-		//验证码为空
-		if (StringUtils.isBlank(codeInRequest)) {
+		try{
+			isValidMobile(user);
+			isValidSMS(request,user);
+			isValidPwd(user);
+			isvalidName(user);
+
+		}catch (ValidateCodeException e){
+			System.out.println(e);
+			throw e;
+		}
+		return true;
+	}
+
+	private Boolean isvalidName(User user){
+		if(StringUtils.isBlank(user.getUserName())){
+			throw new ValidateCodeException(JsonUtil.toJson(UserResponse.USERNAME_ISEMPTY));
+		}
+		return true;
+	}
+
+	/**
+	 * 校验密码是否合法
+	 * @param user
+	 * @return
+	 * @throws ValidateCodeException
+	 */
+	private boolean isValidPwd(User user) throws ValidateCodeException{
+		/*if(!REGEX_PASSWORD_STRONG.matches(user.getPassword())){
+			throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
+		}*/
+		if(StringUtils.trim(user.getPassword()).length() < 8){
+			throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
+		}
+		if(!user.getPassword().equals(user.getRepassword())){
+			throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_REPEAT));
+		}
+		return true;
+	}
+
+	/**
+	 * 校验电话号码
+	 * @param user
+	 * @return
+	 * @throws ValidateCodeException
+	 */
+	private boolean isValidMobile(User user) throws ValidateCodeException{
+		if(user.getMobile()!=null && user.getMobile().length() == 13){
+			return true;
+		}
+		throw  new ValidateCodeException(JsonUtil.toJson(UserResponse.INVALIDMOBILE));
+	}
+
+	/**
+	 * 校验短信验证码
+	 * @param request
+	 * @param user
+	 * @return
+	 * @throws ValidateCodeException
+	 */
+	private boolean isValidSMS(ServletWebRequest request,User user) throws ValidateCodeException{
+		String smsInRequest = user.getSmsCode();
+		if (StringUtils.isBlank(smsInRequest)) {
 			throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
 		}
+		if(!user.getSmsCode().equals("111111")){
+			throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSUNCORRECT));
+		}
+		/*//系统生成值
+		ValidateCode codeInSession = (ValidateCode) sessionStrategy
+				.getAttribute(request, user.getMobile());
 		//验证码不存在
 		if (codeInSession == null) {
 			throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSNOTEXIST));
@@ -178,9 +232,9 @@ public class UserController {
 			throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSEXPIRED));
 		}
 		//验证码不匹配
-		if (!StringUtils.equals(codeInSession.getCode(), codeInRequest)) {
+		if (!StringUtils.equals(codeInSession.getCode(), smsInRequest)) {
 			throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSUNCORRECT));
-		}
+		}*/
 		return true;
 	}
 }

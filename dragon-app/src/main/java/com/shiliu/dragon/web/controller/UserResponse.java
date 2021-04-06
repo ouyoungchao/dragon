@@ -1,7 +1,6 @@
 package com.shiliu.dragon.web.controller;
 
 
-import com.shiliu.dragon.security.utils.JsonUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.io.Serializable;
@@ -12,7 +11,7 @@ import java.io.Serializable;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum UserResponse implements Serializable {
 
-    INVALIDPARAM(2001,"Invalid mobile"),
+    INVALIDMOBILE(2001,"Invalid mobile"),
     PASSWORD_REPEAT(2002,"Passwords are diff"),
     PASSWORD_RULE_NOTSATISFIED(2003,"Password rules not satisfied"),
     USERNAME_ISEMPTY(2004,"Username invalid"),

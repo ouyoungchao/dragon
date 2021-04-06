@@ -5,8 +5,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.shiliu.dragon.common.utils.JsonUtil;
 import com.shiliu.dragon.security.browser.support.SimpleResponse;
 import com.shiliu.dragon.security.properties.SecurityProperties;
+import com.shiliu.dragon.security.validate.code.AuthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +35,10 @@ public class BrowserSecurityController {
 	@Autowired
 	private SecurityProperties securityProperties;
 	
-	@RequestMapping("/dragon/authentication/require")
+	/*@RequestMapping("/login")
 	@ResponseStatus(code = HttpStatus.UNAUTHORIZED)
 	public SimpleResponse require(HttpServletRequest request, HttpServletResponse response) throws IOException{
 
-		//获取保存的请求
-		SavedRequest saveRequest = requestCache.getRequest(request, response);
-		//从保存请求中获取跳转的url
-		String targetUrl = saveRequest.getRedirectUrl();
-		//判断是否是Html请求
-		if(StringUtils.endsWithIgnoreCase(targetUrl, ".html")){
-			logger.info("跳转的url:"+targetUrl);
-			//标准登陆页面和自定义登录页面
-			redirectStrategy.sendRedirect(request, response, securityProperties.getBrowser().getLogin());
-		}
-		/*else{
-			redirectStrategy.sendRedirect(request,response,targetUrl);
-		}*/
-
-		return new SimpleResponse("访问的页面需要用户登录，引导用户到登录页面");
-	}
+		return new SimpleResponse(JsonUtil.toJson(AuthResponse.AUTH_FAILED));
+	}*/
 }

@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.shiliu.dragon.common.cache.SessionCache;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -28,8 +29,7 @@ import com.shiliu.dragon.security.properties.SecurityProperties;
 public class ValidateCodeFilter 
 				extends OncePerRequestFilter implements InitializingBean{
 
-	private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
-	
+
 	//自定义失败异常，MyAuthenticationFailureHandler
 	private SimpleUrlAuthenticationFailureHandler authenticationFailureHandler;
 	
@@ -74,8 +74,7 @@ public class ValidateCodeFilter
 	}
 
 	private void validate(ServletWebRequest request) throws ServletRequestBindingException {
-		ImageCode codeInSession = (ImageCode) sessionStrategy
-				.getAttribute(request, ValidateCodeController.SESSION_KEY);
+		ImageCode codeInSession = (ImageCode) SessionCache.getValueFromCache(ValidateCodeController.SESSION_KEY);
 		//imageCode为login.html中的值
 		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "imageCode");
 		//判断验证码的逻辑
@@ -86,22 +85,16 @@ public class ValidateCodeFilter
 			throw new ValidateCodeException("验证码不存在");
 		}
 		if(codeInSession.isExpired()){
-			sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+			SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
 			throw new ValidateCodeException("验证码已经过期");
 		}
 		if(!StringUtils.equals(codeInSession.getCode(),codeInRequest)){
 			throw new ValidateCodeException("验证码不匹配");
 		}
-		sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
+		SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
 	}
 	
-	public SessionStrategy getSessionStrategy() {
-		return sessionStrategy;
-	}
-	
-	public void setSessionStrategy(SessionStrategy sessionStrategy) {
-		this.sessionStrategy = sessionStrategy;
-	}
+
 	
 	public SimpleUrlAuthenticationFailureHandler getAuthenticationFailureHandler() {
 		return authenticationFailureHandler;

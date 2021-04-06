@@ -3,7 +3,6 @@ package com.shiliu.dragon.security.validate.code;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.shiliu.dragon.security.properties.SecurityProperties;
 import com.shiliu.dragon.security.properties.SmsCodeProperties;
-import com.shiliu.dragon.security.utils.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;

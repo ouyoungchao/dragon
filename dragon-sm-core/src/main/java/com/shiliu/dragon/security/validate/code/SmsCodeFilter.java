@@ -10,11 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shiliu.dragon.common.cache.SessionCache;
+import com.shiliu.dragon.common.utils.JsonUtil;
 import com.shiliu.dragon.security.properties.SmsCodeProperties;
 import org.apache.commons.lang.StringUtils;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.SessionStrategy;
@@ -32,8 +34,7 @@ import com.shiliu.dragon.security.properties.SecurityProperties;
 public class SmsCodeFilter 
 				extends OncePerRequestFilter implements InitializingBean{
 
-	private SessionStrategy sessionStrategy = new HttpSessionSessionStrategy();
-	
+
 	//自定义失败异常，MyAuthenticationFailureHandler
 	private SimpleUrlAuthenticationFailureHandler authenticationFailureHandler;
 	
@@ -82,41 +83,38 @@ public class SmsCodeFilter
 	}
 
 	public void validate(ServletWebRequest request, HttpServletResponse response) throws ServletRequestBindingException, IOException {
+		String mobile = ServletRequestUtils.getStringParameter(request.getRequest(), "mobile");
+		if(mobile == null || mobile.trim().length() != 13){
+//			response.getWriter().write(JsonUtil.toJson(SmsResponse.INVALIDPARAM));
+			throw new ValidateCodeException("");
+		}
 		//系统生成值
-		ValidateCode codeInSession = (ValidateCode) sessionStrategy
-				.getAttribute(request, ValidateCodeController.SESSION_KEY);
+		ValidateCode codeInSession = (ValidateCode) SessionCache.getValueFromCache(mobile);
 		//请求参数值
 		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "smsCode");
 		//验证码为空
 		if(StringUtils.isBlank(codeInRequest)){
-			response.getWriter().write(SmsResponse.SMSISEMPTY.toString());
+//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
 			throw new ValidateCodeException("");
 		}
 		//验证码不存在
 		if(codeInSession == null){
-			response.getWriter().write(SmsResponse.SMSNOTEXIST.toString());
+//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSNOTEXIST));
 			throw new ValidateCodeException("");
 		}
 		//验证码已经过期
 		if(codeInSession.isExpired()){
-			sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
-			response.getWriter().write(SmsResponse.SMSEXPIRED.toString());
+			SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
+//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSEXPIRED));
 			throw new ValidateCodeException("");
 		}
 		//验证码不匹配
 		if(!StringUtils.equals(codeInSession.getCode(),codeInRequest)){
-			response.getWriter().write(SmsResponse.SMSUNCORRECT.toString());
+			System.out.println("codeInSession = " + codeInSession.getCode() + " and codeInRequest = " + codeInRequest);
+//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSUNCORRECT));
 			throw new ValidateCodeException("");
 		}
-		sessionStrategy.removeAttribute(request, ValidateCodeController.SESSION_KEY);
-	}
-	
-	public SessionStrategy getSessionStrategy() {
-		return sessionStrategy;
-	}
-	
-	public void setSessionStrategy(SessionStrategy sessionStrategy) {
-		this.sessionStrategy = sessionStrategy;
+		SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
 	}
 	
 	public SimpleUrlAuthenticationFailureHandler getAuthenticationFailureHandler() {
@@ -128,13 +126,6 @@ public class SmsCodeFilter
 		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
-	public Set<String> getUrls() {
-		return urls;
-	}
-
-	public void setUrls(Set<String> urls) {
-		this.urls = urls;
-	}
 	public SecurityProperties getSecurityProperties() {
 		return securityProperties;
 	}

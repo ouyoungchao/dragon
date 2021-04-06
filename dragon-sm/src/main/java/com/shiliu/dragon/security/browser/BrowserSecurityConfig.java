@@ -1,5 +1,6 @@
 package com.shiliu.dragon.security.browser;
 
+import com.shiliu.dragon.security.authentication.mobile.SmsCodeAuthenticationProvider;
 import com.shiliu.dragon.security.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.shiliu.dragon.security.properties.SecurityProperties;
 import com.shiliu.dragon.security.validate.code.SmsCodeFilter;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.social.security.SpringSocialConfigurer;
@@ -39,9 +41,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Autowired
 	private SimpleUrlAuthenticationFailureHandler dragonAuthenticationFailureHandler;
-	
-	@Autowired
-	private DataSource dataSource;
+
+	private DataSource dataSource = new DataSource();
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
@@ -84,17 +85,23 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 		tokenFilter.setSecurityProperties(securityProperties);
 		tokenFilter.afterPropertiesSet();
 
+		UserAuthenticationFilter userAuthenticationFilter = new UserAuthenticationFilter();
+		userAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
+		userAuthenticationFilter.setAuthenticationSuccessHandler(dragonAuthenticationSuccessHandler);
+		userAuthenticationFilter.setAuthenticationFailureHandler(dragonAuthenticationFailureHandler);
+
 		//基于security的基本配置
 //		http.httpBasic()
-		http.addFilterBefore(smsCodeFilter, UserAuthenticationFilter.class)
-			.addFilterBefore(validateCodeFilter, UserAuthenticationFilter.class)
-			.addFilterBefore(tokenFilter, UserAuthenticationFilter.class)
-			//表单登录即认证
+		http.addFilterBefore(smsCodeFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(validateCodeFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
+			.addFilterAt(userAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+				//表单登录即认证
 			.formLogin()
 				//指定登录页面
 				//.loginPage("/dragon/authentication/require")
 				//表单登录时UsernamePasswordAuthenticationFilter处理这个请求
-				.loginProcessingUrl("/dragon/authentication/form")
+				.loginProcessingUrl("/dragon/authentication/user")
 				//表单登陆后使用定义的处理器
 				.successHandler(dragonAuthenticationSuccessHandler)
 				.failureHandler(dragonAuthenticationFailureHandler)
