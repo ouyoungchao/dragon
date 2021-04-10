@@ -8,6 +8,8 @@ import com.shiliu.dragon.security.validate.code.SmsResponse;
 import com.shiliu.dragon.security.validate.code.ValidateCode;
 import com.shiliu.dragon.security.validate.code.ValidateCodeException;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -29,6 +31,8 @@ import java.util.List;
 @RequestMapping("/dragon/user")
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     private UserDao userDao;
 
@@ -37,7 +41,7 @@ public class UserController {
         System.out.print("Begin register " + userContext);
         User user = JsonUtil.readValue(userContext,User.class);
         try {
-            validUser(new ServletWebRequest(request),user);
+            validUser(user);
         } catch (ServletRequestBindingException e) {
             System.out.println("Check smsCode ServletRequestBindingException");
             return JsonUtil.toJson(SmsResponse.SMSNOTEXIST);
@@ -54,6 +58,7 @@ public class UserController {
     @GetMapping("/{id}")
     public String queryUserById(@PathVariable(name = "id") String id){
         try{
+            logger.info("begin query user " + id);
             isValidMobile(id);
             User user = userDao.queryUserById(id);
             if(user != null){
@@ -83,13 +88,12 @@ public class UserController {
 
     /**
      * 校验sm是否合法
-     * @param request
-     * @param userTok
+     * @param user
      * @return
      * @throws ServletRequestBindingException
      * @throws ValidateCodeException
      */
-    private boolean validUser(ServletWebRequest request,User user) throws ServletRequestBindingException, ValidateCodeException {
+    private boolean validUser(User user) throws ServletRequestBindingException, ValidateCodeException {
         //请求参数值
         if(user == null){
             throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
