@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -56,7 +57,7 @@ public class TokenFilter
     @Override
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
-        urls.add("/dragon/user/");
+        urls.add("/dragon/user");
         certificationFreeUrls.add("/dragon/user/register");
         certificationFreeUrls.add("authentication/mobile");
         certificationFreeUrls.add("authentication/user");
@@ -70,7 +71,7 @@ public class TokenFilter
         //new Exception("SmsCodeFilter").printStackTrace();
         boolean flag = false;
         for (String url : urls) {
-            if (pathMatch.matchStart(url, request.getRequestURI()) && !certificationFreeUrls.contains(request.getRequestURI())) {
+            if (pathMatch.matchStart(request.getRequestURI(),url) && !certificationFreeUrls.contains(request.getRequestURI())) {
                 flag = true;
             }
         }
@@ -82,13 +83,14 @@ public class TokenFilter
                 myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
                 return;
             }
-			String token = ServletRequestUtils.getStringParameter(servletWebRequest.getRequest(), "token");
+			String token = request.getHeader("token");
 			String id = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
             Authentication authentication = (Authentication) SessionCache.getValueFromCache(id);
             // TODO: 2021/4/6 更新后新增到缓存中 
             SessionCache.addSession(token, authentication);
-            System.out.println("get authentication" + authentication);
-            myAuthenticationSuccessHandler.onAuthenticationSuccess(request, response, null);
+            System.out.println("get authentication " + authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            myAuthenticationSuccessHandler.onAuthenticationSuccess(request, null, authentication);
             //如果不是相应的请求，则直接调用相应的请求
         }
 
@@ -96,9 +98,8 @@ public class TokenFilter
     }
 
     private boolean existToken(ServletWebRequest request) throws ServletRequestBindingException {
-
         //imageCode为login.html中的值
-        String token = ServletRequestUtils.getStringParameter(request.getRequest(), "token");
+        String token = request.getHeader("token");
         //判断验证码的逻辑
         if (StringUtils.isBlank(token)) {
             return false;

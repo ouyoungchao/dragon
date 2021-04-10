@@ -1,15 +1,8 @@
 package com.shiliu.dragon.model.user;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Map;
 
-import javax.validation.constraints.Past;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import com.shiliu.dragon.validator.SimpleConstraint;
-import com.fasterxml.jackson.annotation.JsonView;
 
 
 public class User implements Serializable{
@@ -29,13 +22,13 @@ public class User implements Serializable{
 
 	private String school;
 
-	private String birthday;
+	private long birthday;
 
 	private String majorIn;
 
 	private String smsCode;
 
-	private String sex;
+	private byte sex;
 
 
 	private Map<String,Object> extendProperties;
@@ -88,11 +81,11 @@ public class User implements Serializable{
 		this.school = school;
 	}
 
-	public String getBirthday() {
+	public long getBirthday() {
 		return birthday;
 	}
 
-	public void setBirthday(String birthday) {
+	public void setBirthday(long birthday) {
 		this.birthday = birthday;
 	}
 
@@ -112,11 +105,11 @@ public class User implements Serializable{
 		this.smsCode = smsCode;
 	}
 
-	public String getSex() {
+	public byte getSex() {
 		return sex;
 	}
 
-	public void setSex(String sex) {
+	public void setSex(byte sex) {
 		this.sex = sex;
 	}
 

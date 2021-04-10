@@ -35,7 +35,7 @@ public class DragonAuthenticationSuccessHandler extends
                                         HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         logger.info("登录成功，开始授权");
-        if (authentication !=null) {
+        if (response !=null) {
             //如果为json格式，则返回json数据，如果不是则跳转
             response.setContentType("application/json;charset=UTF-8");
             //将authentication以json的形式输出到前端

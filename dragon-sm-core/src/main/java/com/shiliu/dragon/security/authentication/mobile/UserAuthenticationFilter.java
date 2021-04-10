@@ -61,7 +61,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        System.out.println("UserAuthenticationFilter begin doFilter");
+        System.out.println("UserAuthenticationFilter begin doFilter ");
         HttpServletRequest request = (HttpServletRequest)req;
         HttpServletResponse response = (HttpServletResponse)res;
         if (!this.requiresAuthentication(request, response)) {

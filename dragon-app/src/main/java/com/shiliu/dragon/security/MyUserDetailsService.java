@@ -1,5 +1,7 @@
 package com.shiliu.dragon.security;
 
+import com.shiliu.dragon.dao.UserDao;
+import com.shiliu.dragon.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Component;
 public class MyUserDetailsService implements UserDetailsService,SocialUserDetailsService {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
+
+	@Autowired
+	private UserDao userDao;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -48,8 +53,9 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 		//根据数据库查询username的密码和授权
 		//根据数据库查找到的信息判断用户是否被冻结
 		//最后返回一个UserDetails的实例即可
-		// TODO: 2021/3/22  
-		String password = passwordEncoder.encode("root");
+		// TODO: 2021/3/22
+		User user = userDao.queryUserById(userId);
+		String password = passwordEncoder.encode(user.getPassword());
 		//match匹配password和前台输入的密码
 		try {
 			SocialUser socialUser =  new SocialUser(userId,password,
