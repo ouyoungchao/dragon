@@ -8,6 +8,8 @@ import com.shiliu.dragon.security.validate.code.TokenFilter;
 import com.shiliu.dragon.security.validate.code.ValidateCodeFilter;
 import com.shiliu.dragon.security.authentication.mobile.UserAuthenticationFilter;
 import org.apache.tomcat.jdbc.pool.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +28,7 @@ import org.springframework.social.security.SpringSocialConfigurer;
 
 @Configuration
 public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Bean
 	public PasswordEncoder passwordEncoder(){
@@ -64,14 +67,13 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		System.out.println("enter BrowseSecurityConfig#config");
+		logger.info("Enter BrowseSecurityConfig#config");
 		//验证码逻辑
 		ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
 		validateCodeFilter.setAuthenticationFailureHandler(dragonAuthenticationFailureHandler);
 		validateCodeFilter.setSecurityProperties(securityProperties);
 		validateCodeFilter.afterPropertiesSet();
-		
-		
+
 		//短息验证码逻辑
 		SmsCodeFilter smsCodeFilter = new SmsCodeFilter();
 		smsCodeFilter.setAuthenticationFailureHandler(dragonAuthenticationFailureHandler);

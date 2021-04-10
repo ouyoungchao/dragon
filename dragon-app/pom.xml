@@ -78,6 +78,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<finalName>app</finalName>
+		<finalName>dragon</finalName>
 	</build>
 </project>

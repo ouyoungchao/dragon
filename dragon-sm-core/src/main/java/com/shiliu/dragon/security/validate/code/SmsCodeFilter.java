@@ -11,15 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shiliu.dragon.common.cache.SessionCache;
-import com.shiliu.dragon.common.utils.JsonUtil;
 import com.shiliu.dragon.security.properties.SmsCodeProperties;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -33,13 +31,11 @@ import com.shiliu.dragon.security.properties.SecurityProperties;
  */
 public class SmsCodeFilter 
 				extends OncePerRequestFilter implements InitializingBean{
-
+	Logger logger = LoggerFactory.getLogger(getClass());
 
 	//自定义失败异常，MyAuthenticationFailureHandler
 	private SimpleUrlAuthenticationFailureHandler authenticationFailureHandler;
-	
 	private Set<String> urls = new HashSet<String>();
-	
 	private AntPathMatcher pathMatch = new AntPathMatcher();
 
 	@Autowired
@@ -59,7 +55,7 @@ public class SmsCodeFilter
 	protected void doFilterInternal(HttpServletRequest request,
 			HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		System.out.println("SmsCodeFilter begin doFilterInternal ");
+		logger.info("SmsCodeFilter begin doFilterInternal {}",request.getRequestURI());
 		//new Exception("SmsCodeFilter").printStackTrace();
 		boolean flag = false;
 		for(String url : urls){
@@ -72,8 +68,9 @@ public class SmsCodeFilter
 		if(flag){
 			try {
 				ServletWebRequest servletWebRequest = new ServletWebRequest(request);
-				validate(servletWebRequest,response);
+				validate(servletWebRequest);
 			} catch (ValidateCodeException e) {
+				logger.error("Do Filter with ValidateCodeException ",e);
 				authenticationFailureHandler.onAuthenticationFailure(request, response, e);
 				return ;
 			}
@@ -82,10 +79,9 @@ public class SmsCodeFilter
 		filterChain.doFilter(request, response);
 	}
 
-	public void validate(ServletWebRequest request, HttpServletResponse response) throws ServletRequestBindingException, IOException {
+	public void validate(ServletWebRequest request) throws ServletRequestBindingException, IOException {
 		String mobile = ServletRequestUtils.getStringParameter(request.getRequest(), "mobile");
 		if(mobile == null || mobile.trim().length() != 13){
-//			response.getWriter().write(JsonUtil.toJson(SmsResponse.INVALIDPARAM));
 			throw new ValidateCodeException("");
 		}
 		//系统生成值
@@ -94,31 +90,26 @@ public class SmsCodeFilter
 		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "smsCode");
 		//验证码为空
 		if(StringUtils.isBlank(codeInRequest)){
-//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
+			logger.warn("Sms code is empty");
 			throw new ValidateCodeException("");
 		}
 		//验证码不存在
 		if(codeInSession == null){
-//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSNOTEXIST));
+			logger.warn("Sms code not exit");
 			throw new ValidateCodeException("");
 		}
 		//验证码已经过期
 		if(codeInSession.isExpired()){
+			logger.warn("Sms is expired");
 			SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
-//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSEXPIRED));
 			throw new ValidateCodeException("");
 		}
 		//验证码不匹配
 		if(!StringUtils.equals(codeInSession.getCode(),codeInRequest)){
-			System.out.println("codeInSession = " + codeInSession.getCode() + " and codeInRequest = " + codeInRequest);
-//			response.getWriter().write(JsonUtil.toJson(SmsResponse.SMSUNCORRECT));
+			logger.warn("codeInSession =  {} and codeInRequest = {}",codeInSession.getCode(),codeInRequest);
 			throw new ValidateCodeException("");
 		}
 		SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
-	}
-	
-	public SimpleUrlAuthenticationFailureHandler getAuthenticationFailureHandler() {
-		return authenticationFailureHandler;
 	}
 
 	public void setAuthenticationFailureHandler(

@@ -30,7 +30,6 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 	//表单登录时，根据用户名查找用户信息
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
-		new Exception("loadUserByUsername").printStackTrace();
 		logger.info("登陆用户"+username);
 		//new Exception("user login").printStackTrace();
 		return buildUser(username);

@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.shiliu.dragon.common.cache.SessionCache;
 import com.shiliu.dragon.common.utils.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
@@ -23,9 +25,8 @@ import com.shiliu.dragon.security.validate.code.sms.SmsCodeSender;
 
 @RestController
 public class ValidateCodeController {
-
+	private Logger logger = LoggerFactory.getLogger(getClass());
 	public static final String SESSION_KEY = "SESSION_KEY_IMAGE_CODE";
-	
 
 	@Autowired
 	private SecurityProperties securityProperties;
@@ -73,7 +74,7 @@ public class ValidateCodeController {
 		ValidateCode smsCode = smsCodeGenerator.generate(request);
 		ServletWebRequest servletWebRequest  = new ServletWebRequest(request);
 		//保存到session中
-		System.out.println("smscode = " + smsCode + " and moble = " + mobile + " request = " + servletWebRequest.hashCode());
+		logger.info("smscode = {} and moble = {} request = ",smsCode,mobile,servletWebRequest.hashCode());
 		SessionCache.addSession(mobile, smsCode);
 		smsCodeSender.sendSmsCode(mobile, smsCode.getCode());
 		return JsonUtil.toJson(SmsResponse.SUCCESS);

@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.shiliu.dragon.common.cache.SessionCache;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -28,7 +28,7 @@ import com.shiliu.dragon.security.properties.SecurityProperties;
  */
 public class ValidateCodeFilter 
 				extends OncePerRequestFilter implements InitializingBean{
-
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
 	//自定义失败异常，MyAuthenticationFailureHandler
 	private SimpleUrlAuthenticationFailureHandler authenticationFailureHandler;
@@ -50,25 +50,8 @@ public class ValidateCodeFilter
 	protected void doFilterInternal(HttpServletRequest request,
 			HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		System.out.println("ValidateCodeFilter begin doFilterInternal " + request.getRequestURI());
+		logger.info("ValidateCodeFilter begin doFilterInternal {}",request.getRequestURI());
 		// TODO: 2021/3/22 该拦截器预留，先不做验证码校验
-		/*boolean flag = false;
-		for(String url : urls){
-			if(pathMatch.match(url, request.getRequestURI())){
-				flag = true;
-			}
-		}
-		
-		//处理/authentication/form的请求
-		if(flag){
-			try {
-				validate(new ServletWebRequest(request));
-			} catch (ValidateCodeException e) {
-				e.printStackTrace();
-				authenticationFailureHandler.onAuthenticationFailure(request, response, e);
-				return ;
-			}
-		}*/
 		//如果不是相应的请求，则直接调用相应的请求
 		filterChain.doFilter(request, response);
 	}
@@ -93,25 +76,12 @@ public class ValidateCodeFilter
 		}
 		SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
 	}
-	
-
-	
-	public SimpleUrlAuthenticationFailureHandler getAuthenticationFailureHandler() {
-		return authenticationFailureHandler;
-	}
 
 	public void setAuthenticationFailureHandler(
 			SimpleUrlAuthenticationFailureHandler authenticationFailureHandler) {
 		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
 
-	public Set<String> getUrls() {
-		return urls;
-	}
-
-	public void setUrls(Set<String> urls) {
-		this.urls = urls;
-	}
 	public SecurityProperties getSecurityProperties() {
 		return securityProperties;
 	}

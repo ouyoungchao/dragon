@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class QQImpl extends AbstractOAuth2ApiBinding implements QQ{
 
 	//openId表示QQ用户的唯一标识
-	private static final String URL_GET_OPENID = "https://graph.qq.com/oauth2.0/me?access_token=%s";
+	private static final String URL_GET_OPENID = "https://graph.qq.com/oauth2.0/me?access_token={}";
 	//用来获取用户的信息：accessToken-openId-appId
-	private static final String URL_GET_USERINFO = "https://graph.qq.com/user/get_user_info?oauth_consumer_key=%s&openid=%s";
+	private static final String URL_GET_USERINFO = "https://graph.qq.com/user/get_user_info?oauth_consumer_key={}&openid={}";
 	//第三方用户的唯一标识
 	private String appId;
 

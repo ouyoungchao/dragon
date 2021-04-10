@@ -12,7 +12,6 @@ public class DemoImageCodeGenerator implements ValidateCodeGenerator {
 
 	@Override
 	public ImageCode generate(HttpServletRequest request) {
-		System.out.println("这是应用中的code生成器");
 		return null;
 	}
 }

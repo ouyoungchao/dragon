@@ -6,24 +6,28 @@ import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.dysmsapi20170525.Client;
 
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AliSmsCodeSender extends DefaultSmsCodeSender {
 
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
     public void sendSmsCode(String mobile, String code) {
+        logger.info("Begin send sms code to mobile " + mobile);
         super.sendSmsCode(mobile, code);
         SendSmsRequest sendSmsRequest = new SendSmsRequest();
         sendSmsRequest.setPhoneNumbers(mobile);
         //todo
         sendSmsRequest.setTemplateCode("");
-        String  temp = String.format("短信验证码为：%s",code);
+        String  temp = String.format("短信验证码为：{}",code);
         sendSmsRequest.setTemplateParam(temp);
         try {
             SendSmsResponse smsResponse = createClient().sendSms(sendSmsRequest);
-            System.out.println(new Gson().toJson(smsResponse.body));
+           logger.info("Send sms code success " + new Gson().toJson(smsResponse.body));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Send sms code error ",e);
         }
 
 

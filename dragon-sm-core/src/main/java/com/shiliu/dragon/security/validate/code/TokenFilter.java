@@ -3,6 +3,8 @@ package com.shiliu.dragon.security.validate.code;
 import com.shiliu.dragon.common.cache.SessionCache;
 import com.shiliu.dragon.security.properties.SecurityProperties;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -33,7 +35,7 @@ import java.util.Set;
  */
 public class TokenFilter
         extends OncePerRequestFilter implements InitializingBean {
-
+    Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private AuthenticationSuccessHandler myAuthenticationSuccessHandler;
@@ -67,7 +69,7 @@ public class TokenFilter
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        System.out.println("TokenFilter begin doFilterInternal " + request.getRequestURI());
+        logger.info("TokenFilter begin doFilterInternal {}",request.getRequestURI());
         //new Exception("SmsCodeFilter").printStackTrace();
         boolean flag = false;
         for (String url : urls) {
@@ -88,12 +90,9 @@ public class TokenFilter
             Authentication authentication = (Authentication) SessionCache.getValueFromCache(id);
             // TODO: 2021/4/6 更新后新增到缓存中 
             SessionCache.addSession(token, authentication);
-            System.out.println("get authentication " + authentication);
+            logger.debug("get authentication {}",authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-//            myAuthenticationSuccessHandler.onAuthenticationSuccess(request, null, authentication);
-            //如果不是相应的请求，则直接调用相应的请求
         }
-
         filterChain.doFilter(request, response);
     }
 

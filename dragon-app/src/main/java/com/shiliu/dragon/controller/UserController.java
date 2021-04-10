@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.ServletWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,20 +37,20 @@ public class UserController {
     private UserDao userDao;
 
     @PostMapping("/register")
-    public String register(HttpServletRequest request, HttpServletResponse response, @RequestBody String userContext ){
-        System.out.print("Begin register " + userContext);
+    public String register(@RequestBody String userContext ){
+        logger.info("Begin register " + userContext);
         User user = JsonUtil.readValue(userContext,User.class);
         try {
             validUser(user);
         } catch (ServletRequestBindingException e) {
-            System.out.println("Check smsCode ServletRequestBindingException");
+            logger.error("Check smsCode ServletRequestBindingException ",e);
             return JsonUtil.toJson(SmsResponse.SMSNOTEXIST);
         } catch (ValidateCodeException e) {
-            System.out.println("Check smsCode IOException");
+            logger.error("Check smsCode IOException ",e);
             return e.getMessage();
         }
-        System.out.println("user detail is " + user);
         userDao.addUser(user);
+        logger.info("Add user {} success",user.getMobile());
         //注册用户
         return JsonUtil.toJson(UserResponse.REGISTER_SUCCESS);
     }
@@ -64,10 +64,12 @@ public class UserController {
             if(user != null){
                 UserResponse userResponse = UserResponse.QUERY_USER_SUCCESS;
                 userResponse.setMessage(JsonUtil.toJson(user));
+                logger.info("Query user {} success",id);
                 return JsonUtil.toJson(userResponse);
             }
+            logger.warn("User {} not exit",id);
         }catch (ValidateCodeException e){
-
+            logger.error("Quesy user with ValidateCodeException ",e);
         }
         return JsonUtil.toJson(UserResponse.USER_NOT_EXIST);
     }
@@ -76,8 +78,16 @@ public class UserController {
     public String query(HttpServletRequest request){
         int offset = request.getParameter("offset") == null?0:Integer.parseInt(request.getParameter("offset"));
         int limit = request.getParameter("pageSize") == null?10:Integer.parseInt(request.getParameter("pageSize"));
+        logger.info("Begin quesy user offset {} pageSize {}",offset, limit);
         List<User> users = userDao.queryUsers(offset,limit);
-        return JsonUtil.toJson(users);
+        UserResponse userResponse = UserResponse.QUERY_USER_SUCCESS;
+        if(users == null || users.isEmpty()){
+            logger.warn("No condition users");
+            userResponse.setMessage(JsonUtil.toJson(Collections.EMPTY_LIST));
+        }else {
+            userResponse.setMessage(JsonUtil.toJson(users));
+        }
+        return JsonUtil.toJson(userResponse);
     }
 
     /**
@@ -103,10 +113,8 @@ public class UserController {
             isValidSMS(user);
             isValidPwd(user);
             isvalidName(user);
-
-
         }catch (ValidateCodeException e){
-            System.out.println(e);
+            logger.warn("ValidateCodeException ",e);
             throw e;
         }
         return true;
