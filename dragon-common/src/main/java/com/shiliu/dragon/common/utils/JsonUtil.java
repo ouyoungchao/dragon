@@ -4,9 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JsonUtil {
 
+    private static Logger logger = LoggerFactory.getLogger(JsonUtil.class);
 
     private static ObjectMapper objectMap = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -15,7 +18,7 @@ public class JsonUtil {
             String json = objectMap.writeValueAsString(object);
             return json;
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.error("Object to json error",e);
         }
         return null;
     }
@@ -28,7 +31,7 @@ public class JsonUtil {
             //字符串转Json对象
             return objectMap.readValue(content, valueType);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Json to object error",e);
         }
 
         return null;

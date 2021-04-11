@@ -2,13 +2,14 @@ package com.shiliu.dragon.model.user;
 
 import java.io.Serializable;
 import java.util.Map;
-
-
+import java.util.UUID;
 
 public class User implements Serializable{
 
 	public User() {
 	}
+
+	private String id;
 
 	private String mobile;
 
@@ -30,6 +31,16 @@ public class User implements Serializable{
 
 	private byte sex;
 
+	public String getId() {
+		if(id == null) {
+			id = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+		}
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	private Map<String,Object> extendProperties;
 
@@ -112,6 +123,8 @@ public class User implements Serializable{
 	public void setSex(byte sex) {
 		this.sex = sex;
 	}
+
+
 
 	public Map<String, Object> getExtendProperties() {
 		return extendProperties;

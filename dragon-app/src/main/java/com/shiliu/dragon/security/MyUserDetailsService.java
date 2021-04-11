@@ -1,6 +1,7 @@
 package com.shiliu.dragon.security;
 
 import com.shiliu.dragon.dao.UserDao;
+import com.shiliu.dragon.model.user.DragonSocialUser;
 import com.shiliu.dragon.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyUserDetailsService implements UserDetailsService,SocialUserDetailsService {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private static Logger logger = LoggerFactory.getLogger(MyUserDetailsService.class);
 
 	@Autowired
 	private UserDao userDao;
@@ -53,17 +54,18 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 		//根据数据库查找到的信息判断用户是否被冻结
 		//最后返回一个UserDetails的实例即可
 		// TODO: 2021/3/22
-		User user = userDao.queryUserById(userId);
+		User user = userDao.queryUserByMobile(userId);
 		String password = passwordEncoder.encode(user.getPassword());
 		//match匹配password和前台输入的密码
 		try {
-			SocialUser socialUser =  new SocialUser(userId,password,
+			SocialUser socialUser =  new SocialUser(user.getId(),password,
 					true,true,true,true,
 					//完成用户的授权
-					AuthorityUtils.commaSeparatedStringToAuthorityList("admin"));
+					AuthorityUtils.commaSeparatedStringToAuthorityList(user.getUserName()));
+//			SocialUser socialUser = new DragonSocialUser(user.getId(),user.getUserName(),user.getPassword(),"Dragon",AuthorityUtils.commaSeparatedStringToAuthorityList("Dragon"),true,true,true,true);
 			return socialUser;
 		}catch (Exception e){
-			e.printStackTrace();
+			logger.warn("BuildUser error");
 			throw e;
 		}
 

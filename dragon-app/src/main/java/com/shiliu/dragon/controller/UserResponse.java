@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum UserResponse implements Serializable {
-
+    INVALIDPARAM(2000,"Invalid param"),
     INVALIDMOBILE(2001,"Invalid mobile"),
     PASSWORD_REPEAT(2002,"Passwords are diff"),
     PASSWORD_RULE_NOTSATISFIED(2003,"Password rules not satisfied"),
@@ -18,8 +18,9 @@ public enum UserResponse implements Serializable {
     SCHOOL_MAJOR_EMPTY(2005,"Scholl or major can not empty"),
     MOBILE_REGISTED(2006,"Mobile has registed"),
     REGISTER_SUCCESS(2008,"Register success"),
-    UPDATE_SUCCESS(2031,"Update user success"),
+    Modify_SUCCESS(2031,"Modify user success"),
     UPDATE_PWD(2032,"Update pwd success"),
+    EMPTY_FILDERS(2030,"Modify filders is empty"),
     USER_NOT_EXIST(2021,"User not exist"),
     QUERY_USER_SUCCESS(2022,"QueyUser success");
 
@@ -29,7 +30,7 @@ public enum UserResponse implements Serializable {
     }
 
     private int code;
-    private String message;
+    private Object message;
 
     public int getCode() {
         return code;
@@ -39,11 +40,11 @@ public enum UserResponse implements Serializable {
         this.code = code;
     }
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Object message) {
         this.message = message;
     }
 }

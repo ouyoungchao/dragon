@@ -61,8 +61,9 @@ public class TokenFilter
         super.afterPropertiesSet();
         urls.add("/dragon/user");
         certificationFreeUrls.add("/dragon/user/register");
-        certificationFreeUrls.add("authentication/mobile");
-        certificationFreeUrls.add("authentication/user");
+        certificationFreeUrls.add("/dragon/authentication/mobile");
+        certificationFreeUrls.add("/dragon/authentication/user");
+        certificationFreeUrls.add("/dragon/code/sms");
     }
 
     @Override
@@ -77,8 +78,6 @@ public class TokenFilter
                 flag = true;
             }
         }
-
-        //处理/authentication/mobile的请求
         if (flag) {
             ServletWebRequest servletWebRequest = new ServletWebRequest(request);
             if (!existToken(servletWebRequest)) {
@@ -87,13 +86,25 @@ public class TokenFilter
             }
 			String token = request.getHeader("token");
 			String id = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
-            Authentication authentication = (Authentication) SessionCache.getValueFromCache(id);
-            // TODO: 2021/4/6 更新后新增到缓存中 
+            Object object = SessionCache.getValueFromCache(id);
+            if(object == null){
+                myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
+                return;
+            }
+            Authentication authentication = (Authentication) object;
+                    // TODO: 2021/4/6 更新后新增到缓存中
             SessionCache.addSession(token, authentication);
             logger.debug("get authentication {}",authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            filterChain.doFilter(request, response);
+        }else if (!certificationFreeUrls.contains(request.getRequestURI())){
+            logger.warn("The url {} no need auth",request.getRequestURI());
+            myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
+            return;
+        }else {
+            //查看是否已经登录过，已经登录过的直接更新token,不重复认证
+            filterChain.doFilter(request, response);
         }
-        filterChain.doFilter(request, response);
     }
 
     private boolean existToken(ServletWebRequest request) throws ServletRequestBindingException {
