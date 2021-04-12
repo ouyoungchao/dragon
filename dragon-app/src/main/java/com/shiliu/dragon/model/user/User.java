@@ -3,6 +3,7 @@ package com.shiliu.dragon.model.user;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements Serializable{
 
@@ -31,6 +32,8 @@ public class User implements Serializable{
 
 	private byte sex;
 
+	private Map<String,Object> extendProperties = new ConcurrentHashMap<>();
+
 	public String getId() {
 		if(id == null) {
 			id = UUID.randomUUID().toString().replace("-", "").toLowerCase();
@@ -41,8 +44,6 @@ public class User implements Serializable{
 	public void setId(String id) {
 		this.id = id;
 	}
-
-	private Map<String,Object> extendProperties;
 
 	public String getMobile() {
 		return mobile;
@@ -132,6 +133,10 @@ public class User implements Serializable{
 
 	public void setExtendProperties(Map<String, Object> extendProperties) {
 		this.extendProperties = extendProperties;
+	}
+
+	public void addProperty(String name,String values){
+		extendProperties.put(name,values);
 	}
 
 }

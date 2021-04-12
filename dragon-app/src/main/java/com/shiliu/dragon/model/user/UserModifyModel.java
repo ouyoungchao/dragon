@@ -1,7 +1,7 @@
 package com.shiliu.dragon.model.user;
 
-import com.shiliu.dragon.common.UserInspector;
-import com.shiliu.dragon.common.utils.JsonUtil;
+import com.shiliu.dragon.untils.UserInspector;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import com.shiliu.dragon.controller.UserResponse;
 import com.shiliu.dragon.security.validate.code.ValidateCodeException;
 import org.springframework.data.util.Pair;

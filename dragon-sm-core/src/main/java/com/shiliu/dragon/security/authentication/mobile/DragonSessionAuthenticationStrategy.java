@@ -1,6 +1,6 @@
 package com.shiliu.dragon.security.authentication.mobile;
 
-import com.shiliu.dragon.common.cache.SessionCache;
+import com.shiliu.dragon.untils.cache.SessionCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

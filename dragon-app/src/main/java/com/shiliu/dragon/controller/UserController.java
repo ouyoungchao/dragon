@@ -1,8 +1,10 @@
 package com.shiliu.dragon.controller;
 
-import com.shiliu.dragon.common.AuthUtils;
-import com.shiliu.dragon.common.UserInspector;
-import com.shiliu.dragon.common.utils.JsonUtil;
+import com.shiliu.dragon.model.user.UserExtends;
+import com.shiliu.dragon.properties.NginxProperties;
+import com.shiliu.dragon.untils.AuthUtils;
+import com.shiliu.dragon.untils.UserInspector;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import com.shiliu.dragon.dao.UserDao;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
@@ -15,10 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 
 /**
  * @author ouyangchao
@@ -35,6 +38,9 @@ public class UserController {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private NginxProperties nginxProperties;
 
     @PostMapping("/register")
     public String register(@RequestBody String userContext) {
@@ -132,5 +138,39 @@ public class UserController {
         userDao.updateUser(userModifyModel);
         return JsonUtil.toJson(UserResponse.Modify_SUCCESS);
 
+    }
+
+    @PostMapping("/portrait")
+    public String uploadPortrait(MultipartFile file,HttpServletRequest request) throws Exception{
+        if(file == null|| !(file.getOriginalFilename().endsWith(".jpg") || file.getOriginalFilename().endsWith(".png"))){
+            logger.warn("Upload file is null");
+            return JsonUtil.toJson(UserResponse.INVALIDPARAM);
+        }
+        logger.info("Begin upload file " + file.getOriginalFilename());
+        String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."),file.getOriginalFilename().length());
+        String uploadPath = nginxProperties.getOrtrait();
+        File localFile = new File(uploadPath,new Date().getTime()+suffix);
+        String id = AuthUtils.getUserIdFromRequest(request);
+        String name = "portraitUri";
+        String value = null;
+        //查询是否已经存在头像
+        UserExtends userExtends = userDao.queryUserPortrait(id,name);
+        if( userExtends != null){
+            logger.info("User portrait has existed");
+            localFile = new File(userExtends.getValue());
+            value = nginxProperties.getUri()+localFile.getName();
+        }else {
+            localFile.createNewFile();
+            //将传输内容进行转换
+            file.transferTo(localFile);
+            value = nginxProperties.getUri()+localFile.getName();
+            userDao.addUserPortrait(id,name,value);
+        }
+        UserResponse userResponse = UserResponse.UPLOAD_PORTRAIT_SUCCESS;
+        Map<String,String> result = new HashMap<>();
+        result.put(name,value);
+        userResponse.setMessage(result);
+        logger.info("Upload portrait success");
+        return JsonUtil.toJson(userResponse);
     }
 }

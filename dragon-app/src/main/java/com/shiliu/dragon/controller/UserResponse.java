@@ -22,7 +22,10 @@ public enum UserResponse implements Serializable {
     UPDATE_PWD(2032,"Update pwd success"),
     EMPTY_FILDERS(2030,"Modify filders is empty"),
     USER_NOT_EXIST(2021,"User not exist"),
-    QUERY_USER_SUCCESS(2022,"QueyUser success");
+    QUERY_USER_SUCCESS(2022,"QueyUser success"),
+    //图片上传成功
+    UPLOAD_PORTRAIT_SUCCESS(2040,"Upload portrait success"),
+    MODIFY_PORTRAIT_SUCCESS(2041,"Modify portrait success");
 
     UserResponse(int code, String message) {
         this.code = code;

@@ -1,6 +1,6 @@
 package com.shiliu.dragon.web.controller;
 
-import com.shiliu.dragon.common.utils.JsonUtil;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.code.*;
 import io.swagger.annotations.ApiParam;
@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.ServletRequestBindingException;

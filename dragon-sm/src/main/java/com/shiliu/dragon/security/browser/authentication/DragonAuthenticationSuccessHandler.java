@@ -8,21 +8,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.shiliu.dragon.common.utils.JsonUtil;
-import com.shiliu.dragon.security.properties.LoginType;
-import com.shiliu.dragon.security.properties.SecurityProperties;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import com.shiliu.dragon.security.validate.code.AuthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.social.connect.web.HttpSessionSessionStrategy;
-import org.springframework.social.connect.web.SessionStrategy;
 import org.springframework.social.security.SocialUser;
 import org.springframework.stereotype.Component;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component("dragonAuthenticationSuccessHandler")
 public class DragonAuthenticationSuccessHandler extends

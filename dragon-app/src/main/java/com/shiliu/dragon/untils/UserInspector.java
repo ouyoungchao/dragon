@@ -1,12 +1,12 @@
-package com.shiliu.dragon.common;
+package com.shiliu.dragon.untils;
 
-import com.shiliu.dragon.common.cache.SessionCache;
-import com.shiliu.dragon.common.utils.JsonUtil;
+import com.shiliu.dragon.untils.cache.SessionCache;
 import com.shiliu.dragon.controller.UserResponse;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.code.SmsResponse;
 import com.shiliu.dragon.security.validate.code.ValidateCode;
 import com.shiliu.dragon.security.validate.code.ValidateCodeException;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class UserInspector {
     public static boolean validUser(User user) throws ServletRequestBindingException, ValidateCodeException {
         //请求参数值
         if (user == null) {
-            throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(SmsResponse.SMSISEMPTY));
         }
         try {
             isValidMobile(user.getMobile());
@@ -47,7 +47,7 @@ public class UserInspector {
 
     public static boolean isvalidName(String userName) {
         if (StringUtils.isBlank(userName)) {
-            throw new ValidateCodeException(JsonUtil.toJson(UserResponse.USERNAME_ISEMPTY));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.USERNAME_ISEMPTY));
         }
         return true;
     }
@@ -64,10 +64,10 @@ public class UserInspector {
 			throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
 		}*/
         if (StringUtils.trim(user.getPassword()).length() < 8) {
-            throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
         }
         if (!user.getPassword().equals(user.getRepassword())) {
-            throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_REPEAT));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.PASSWORD_REPEAT));
         }
         return true;
     }
@@ -77,7 +77,7 @@ public class UserInspector {
 			throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
 		}*/
         if (pwd ==null || StringUtils.trim(pwd).length() < 8) {
-            throw new ValidateCodeException(JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.PASSWORD_RULE_NOTSATISFIED));
         }
         return true;
     }
@@ -93,14 +93,14 @@ public class UserInspector {
         if (mobile != null && mobile.length() == 13) {
             return true;
         }
-        throw new ValidateCodeException(JsonUtil.toJson(UserResponse.INVALIDMOBILE));
+        throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.INVALIDMOBILE));
     }
 
     public static boolean isValidUserId(String userId) throws ValidateCodeException {
         if (userId != null && userId.length() == 32) {
             return true;
         }
-        throw new ValidateCodeException(JsonUtil.toJson(UserResponse.INVALIDPARAM));
+        throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.INVALIDPARAM));
     }
 
     /**
@@ -113,19 +113,19 @@ public class UserInspector {
     public static boolean isValidSMS(User user) throws ValidateCodeException {
         String smsInRequest = user.getSmsCode();
         if (StringUtils.isBlank(smsInRequest)) {
-            throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSISEMPTY));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(SmsResponse.SMSISEMPTY));
         }
         //系统生成值
         Object cachedObject = SessionCache.getValueFromCache(user.getMobile());
         //验证码不存在
         if (cachedObject == null) {
-            throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSNOTEXIST));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(SmsResponse.SMSNOTEXIST));
         }
         ValidateCode codeInSession = (ValidateCode) cachedObject;
         //验证码已经过期
         if (codeInSession.isExpired()) {
             SessionCache.removeFromCache(user.getMobile());
-            throw new ValidateCodeException(JsonUtil.toJson(SmsResponse.SMSEXPIRED));
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(SmsResponse.SMSEXPIRED));
         }
         //验证码不匹配
         if (!StringUtils.equals(codeInSession.getCode(), smsInRequest)) {
