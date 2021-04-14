@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DragonAuthenticationFailureHandler extends
         SimpleUrlAuthenticationFailureHandler {
     private static final String TAG = "DragonAuthenticationFailure";
-    private Logger logger = LoggerFactory.getLogger(getClass());
+    private static Logger logger = LoggerFactory.getLogger(DragonAuthenticationFailureHandler.class);
 
     //springBoot开启时自动登录
     @Autowired
@@ -35,7 +35,7 @@ public class DragonAuthenticationFailureHandler extends
     public void onAuthenticationFailure(HttpServletRequest request,
                                         HttpServletResponse response, AuthenticationException exception)
             throws IOException, ServletException {
-        logger.error(TAG, "authentication failed ", exception);
+        logger.error("Dragon auth failed ",exception);
 //		exception.printStackTrace();
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.setContentType("application/json;charset=UTF-8");

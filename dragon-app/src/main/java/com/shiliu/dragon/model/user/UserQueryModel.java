@@ -24,7 +24,7 @@ public class UserQueryModel {
 
     public UserQueryModel(HttpServletRequest httpServletRequest) {
        this.origin = httpServletRequest.getParameter("origin") == null?null:httpServletRequest.getParameter("origin");
-       this.school = httpServletRequest.getParameter("origin") == null?null:httpServletRequest.getParameter("origin");
+       this.school = httpServletRequest.getParameter("school") == null?null:httpServletRequest.getParameter("school");
        this.majorIn = httpServletRequest.getParameter("majorIn") == null?null:httpServletRequest.getParameter("majorIn");
        this.offSet = httpServletRequest.getParameter("offset") == null ? this.offSet : Integer.parseInt(httpServletRequest.getParameter("offset"));
        this.pageSize = httpServletRequest.getParameter("pageSize") == null ? this.pageSize : Integer.parseInt(httpServletRequest.getParameter("pageSize"));
@@ -58,17 +58,17 @@ public class UserQueryModel {
     public String condition2Sql(){
         String conditionSql = "";
         if(!StringUtils.isBlank(school)){
-            conditionSql += "school = " + school + AND;
+            conditionSql += "school = \"" + school + "\"" + AND;
         }
         if(!StringUtils.isBlank(this.origin)){
-            conditionSql +="origin = " + origin + AND;
+            conditionSql +="origin = \"" + origin  + "\"" + AND;
         }
         if(!StringUtils.isBlank(majorIn)){
-            conditionSql +="majorIn = " + majorIn + AND;
+            conditionSql +="majorIn = \"" + majorIn + "\"" + AND;
         }
         //去掉最后的and
         if(conditionSql.length() > 0){
-            conditionSql = conditionSql.substring(0,conditionSql.length() - AND.length() +1);
+            conditionSql = " where " + conditionSql.substring(0,conditionSql.length() - AND.length() +1);
         }
         conditionSql += "limit " + offSet + " , " + pageSize+";";
         return conditionSql;

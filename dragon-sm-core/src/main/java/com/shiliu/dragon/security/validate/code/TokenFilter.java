@@ -68,6 +68,7 @@ public class TokenFilter
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         logger.info("TokenFilter begin doFilterInternal {}",request.getRequestURI());
+        logger.info("Cookies is {}",request.getCookies());
         //new Exception("SmsCodeFilter").printStackTrace();
         boolean flag = false;
         for (String url : urls) {
@@ -109,6 +110,7 @@ public class TokenFilter
         String token = request.getHeader("token");
         //判断验证码的逻辑
         if (StringUtils.isBlank(token)) {
+            logger.warn("The token is error");
             return false;
         }
 		return true;

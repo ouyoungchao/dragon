@@ -1,5 +1,6 @@
 package com.shiliu.dragon.security.authentication.mobile;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.*;
@@ -29,7 +30,6 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
     private boolean postOnly = true;
     private SessionAuthenticationStrategy sessionStrategy = new DragonSessionAuthenticationStrategy();
 
-
     public UserAuthenticationFilter() {
         super(new AntPathRequestMatcher("/dragon/authentication/user", "POST"));
     }
@@ -42,11 +42,9 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
         }
         String username = obtainUsername(request);
         String password = obtainPassword(request);
-        if (username == null) {
-            username = "";
-        }
-        if (password == null) {
-            password = "";
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+            logger.warn("Username or pwd is null");
+            return null;
         }
         username = username.trim();
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);

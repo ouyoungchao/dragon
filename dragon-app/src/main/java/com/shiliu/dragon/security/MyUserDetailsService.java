@@ -46,7 +46,7 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 	}
 
 	private SocialUserDetails buildUser(String userId) {
-
+		logger.info("Begin build user {}",userId);
 		if(userId==null || userId.trim().isEmpty()){
 			return null;
 		}
@@ -55,6 +55,10 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 		//最后返回一个UserDetails的实例即可
 		// TODO: 2021/3/22
 		User user = userDao.queryUserByMobile(userId);
+		if(user == null){
+			logger.warn("User {} not exit", userId);
+			return null;
+		}
 		String password = passwordEncoder.encode(user.getPassword());
 		//match匹配password和前台输入的密码
 		try {

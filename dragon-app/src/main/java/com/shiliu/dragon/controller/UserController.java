@@ -65,7 +65,7 @@ public class UserController {
         return JsonUtil.toJson(UserResponse.REGISTER_SUCCESS);
     }
 
-    @GetMapping("/{id}")
+    @PostMapping("/{id}")
     public String queryUserById(@PathVariable(name = "id") String id) {
         try {
             logger.info("begin query user " + id);
@@ -90,7 +90,7 @@ public class UserController {
      * @param request
      * @return
      */
-    @GetMapping("/conditionQuery")
+    @PostMapping("/conditionQuery")
     public String conditionQuery(HttpServletRequest request) {
         logger.info("Begin conditionQuery");
         UserQueryModel userQueryModel = new UserQueryModel(request);
@@ -102,10 +102,12 @@ public class UserController {
         } else {
             userResponse.setMessage(users);
         }
-        return JsonUtil.toJson(userResponse);
+        String result = JsonUtil.toJson(userResponse);
+        logger.info("result {} ",result);
+        return result;
     }
 
-    @GetMapping
+    @PostMapping
     public String query(HttpServletRequest request) {
         int offset = request.getParameter("offset") == null ? 0 : Integer.parseInt(request.getParameter("offset"));
         int limit = request.getParameter("pageSize") == null ? 10 : Integer.parseInt(request.getParameter("pageSize"));

@@ -28,7 +28,7 @@ public class UserDao {
     private static String QUERY_USER_BYID = "select * from user_basic_info where id = ?";
     private static String QUERY_USER_BYMOBILE = "select * from user_basic_info where mobile = ?";
     private static String QUERY_USER_PAGE = "select * from user_basic_info limit ?,?";
-    private static String QUERY_USER_CONDITION = "select * from user_basic_info where";
+    private static String QUERY_USER_CONDITION = "select * from user_basic_info ";
     private static String UPDATE_USER = "update user_basic_info set ";
     //插入头像url
     private static String ADD_PORTRAIT = "insert into user_extend_info(id,name,value) values(?,?,?)";
