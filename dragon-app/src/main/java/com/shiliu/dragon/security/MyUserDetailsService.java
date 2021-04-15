@@ -8,6 +8,7 @@ import com.shiliu.dragon.untils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -58,7 +59,7 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 		// TODO: 2021/3/22
 		User user = userDao.queryUserByMobile(userId);
 		if(user == null){
-			throw new UsernameNotFoundException(JsonUtil.toJson(AuthResponse.USERNAME_NOT_EXIT));
+			throw new BadCredentialsException(JsonUtil.toJson(AuthResponse.USERNAME_NOT_EXIT));
 		}
 		String password = passwordEncoder.encode(user.getPassword());
 		//match匹配password和前台输入的密码
