@@ -3,6 +3,8 @@ package com.shiliu.dragon.security;
 import com.shiliu.dragon.dao.UserDao;
 import com.shiliu.dragon.model.user.DragonSocialUser;
 import com.shiliu.dragon.model.user.User;
+import com.shiliu.dragon.security.validate.code.AuthResponse;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +58,7 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 		// TODO: 2021/3/22
 		User user = userDao.queryUserByMobile(userId);
 		if(user == null){
-			logger.warn("User {} not exit", userId);
-			return null;
+			throw new UsernameNotFoundException(JsonUtil.toJson(AuthResponse.USERNAME_NOT_EXIT));
 		}
 		String password = passwordEncoder.encode(user.getPassword());
 		//match匹配password和前台输入的密码
@@ -65,7 +66,7 @@ public class MyUserDetailsService implements UserDetailsService,SocialUserDetail
 			SocialUser socialUser =  new SocialUser(user.getId(),password,
 					true,true,true,true,
 					//完成用户的授权
-					AuthorityUtils.commaSeparatedStringToAuthorityList(user.getUserName()));
+					AuthorityUtils.commaSeparatedStringToAuthorityList("dragon"));
 //			SocialUser socialUser = new DragonSocialUser(user.getId(),user.getUserName(),user.getPassword(),"Dragon",AuthorityUtils.commaSeparatedStringToAuthorityList("Dragon"),true,true,true,true);
 			return socialUser;
 		}catch (Exception e){

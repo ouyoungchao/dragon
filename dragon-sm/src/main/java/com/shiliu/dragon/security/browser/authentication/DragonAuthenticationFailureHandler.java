@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,10 +38,15 @@ public class DragonAuthenticationFailureHandler extends
                                         HttpServletResponse response, AuthenticationException exception)
             throws IOException, ServletException {
         logger.error("Dragon auth failed ",exception);
-//		exception.printStackTrace();
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.setStatus(HttpStatus.OK.value());
         response.setContentType("application/json;charset=UTF-8");
-        //将authentication以json的形式输出到前端
-        response.getWriter().write(JsonUtil.toJson(AuthResponse.AUTH_FAILED));
+        if(exception instanceof UsernameNotFoundException){
+            response.getWriter().write(exception.getMessage());
+        }else if(exception instanceof BadCredentialsException){
+            response.getWriter().write(JsonUtil.toJson(AuthResponse.USERNAME_PWD_ERROR));
+        }else {
+            //将authentication以json的形式输出到前端
+            response.getWriter().write(JsonUtil.toJson(AuthResponse.AUTH_FAILED));
+        }
     }
 }

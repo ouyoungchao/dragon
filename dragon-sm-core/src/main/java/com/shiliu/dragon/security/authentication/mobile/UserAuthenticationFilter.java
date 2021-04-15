@@ -1,11 +1,14 @@
 package com.shiliu.dragon.security.authentication.mobile;
 
+import com.shiliu.dragon.security.validate.code.AuthResponse;
+import com.shiliu.dragon.untils.utils.JsonUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -43,8 +46,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
         String username = obtainUsername(request);
         String password = obtainPassword(request);
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            logger.warn("Username or pwd is null");
-            return null;
+            throw new UsernameNotFoundException(JsonUtil.toJson(AuthResponse.USERNAME_PWD_ISEMPTY));
         }
         username = username.trim();
         UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);

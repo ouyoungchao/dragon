@@ -13,7 +13,10 @@ import java.io.Serializable;
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum AuthResponse implements Serializable {
     AUTH_SUCCESS(200,"authen success"),
-    AUTH_FAILED(400,"authen failed");
+    AUTH_FAILED(400,"authen failed"),
+    USERNAME_PWD_ISEMPTY(401,"username and pwd con not empty"),
+    USERNAME_PWD_ERROR(402,"Username or pwd error"),
+    USERNAME_NOT_EXIT(403,"Uuser name not exit");
 
     AuthResponse(int code, String message) {
         this.code = code;

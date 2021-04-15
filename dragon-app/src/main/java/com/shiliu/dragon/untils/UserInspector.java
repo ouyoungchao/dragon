@@ -38,16 +38,33 @@ public class UserInspector {
             isValidSMS(user);
             isValidPwd(user);
             isvalidName(user.getUserName());
+            isValidOthers(user.getOrigin(),user.getSchool(),user.getMajorIn());
+            isValidSex(user.getSex());
         } catch (ValidateCodeException e) {
-            logger.warn("invalidUser");
+            logger.warn("InvalidUser param {}",e.getMessage());
             throw e;
         }
         return true;
     }
 
+    private static boolean isValidSex(byte sex) {
+        if(sex == 0 || sex == 1 || sex == -1){
+            return true;
+        }else{
+           throw new ValidateCodeException(JsonUtil.toJson(UserResponse.SEX_ERROR));
+        }
+    }
+
     public static boolean isvalidName(String userName) {
         if (StringUtils.isBlank(userName)) {
             throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.USERNAME_ISEMPTY));
+        }
+        return true;
+    }
+
+    public static boolean isValidOthers(String origin,String school,String majorIn){
+        if (StringUtils.isBlank(origin) || StringUtils.isBlank(school) || StringUtils.isBlank(majorIn)) {
+            throw new ValidateCodeException(com.shiliu.dragon.untils.utils.JsonUtil.toJson(UserResponse.SCHOOL_MAJOR_ORIGIN_EMPTY));
         }
         return true;
     }
