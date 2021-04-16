@@ -11,7 +11,7 @@
  Target Server Version : 80022
  File Encoding         : 65001
 
- Date: 15/04/2021 23:19:36
+ Date: 17/04/2021 01:07:05
 */
 
 SET NAMES utf8mb4;
@@ -46,6 +46,7 @@ CREATE TABLE `user_basic_info`  (
   `birthday` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
   `majorIn` varchar(127) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   `sex` tinyint NULL DEFAULT NULL,
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `mobile`(`mobile`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
@@ -53,7 +54,7 @@ CREATE TABLE `user_basic_info`  (
 -- ----------------------------
 -- Records of user_basic_info
 -- ----------------------------
-INSERT INTO `user_basic_info` VALUES ('a2a83f05fee44f2d87276811116d78ff', '8613012345679', 'Oyc@1234', 'hunan', 'ouyang', 'cqupt', '12345678', 'bioinfo', 1);
+INSERT INTO `user_basic_info` VALUES ('ea52214f14124e12ba12facc15aab313', '8613012345679', 'Oyc@1234', 'hunan', 'ouyang', 'cqupt', '12345678', 'bioinfo', 1, '这个人很懒，什么也没留下');
 
 -- ----------------------------
 -- Table structure for user_extend_info
@@ -61,15 +62,15 @@ INSERT INTO `user_basic_info` VALUES ('a2a83f05fee44f2d87276811116d78ff', '86130
 DROP TABLE IF EXISTS `user_extend_info`;
 CREATE TABLE `user_extend_info`  (
   `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `value` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`, `name`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of user_extend_info
 -- ----------------------------
-INSERT INTO `user_extend_info` VALUES ('e9f12186da7847408afbb6d9fca0c4a8', 'portraitUri', '/dragon/document/portrait/1618247958577.jpg');
+INSERT INTO `user_extend_info` VALUES ('ea52214f14124e12ba12facc15aab313', 'portraitUri', '/dragon/document/portrait/1618591969874.jpg');
 
 -- ----------------------------
 -- Table structure for user_role_relation

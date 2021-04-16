@@ -1,7 +1,6 @@
 package com.shiliu.dragon.dao;
 
 import com.shiliu.dragon.model.user.User;
-import com.shiliu.dragon.model.user.UserExtends;
 import com.shiliu.dragon.model.user.UserModifyModel;
 import com.shiliu.dragon.model.user.UserQueryModel;
 import org.slf4j.Logger;
@@ -9,10 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author ouyangchao
@@ -24,7 +23,7 @@ import java.util.List;
 public class UserDao {
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static String ADD_USER_SQL = "insert into user_basic_info(id,mobile, password, origin, username,school,birthday,majorIn,sex) values(?,?,?,?,?,?,?,?,?)";
+    private static String ADD_USER_SQL = "insert into user_basic_info(id,mobile, password, origin, username,school,birthday,majorIn,sex,description) values(?,?,?,?,?,?,?,?,?,?)";
     private static String QUERY_USER_BYID = "select * from user_basic_info where id = ?";
     private static String QUERY_USER_BYMOBILE = "select * from user_basic_info where mobile = ?";
     private static String QUERY_USER_PAGE = "select * from user_basic_info limit ?,?";
@@ -34,13 +33,16 @@ public class UserDao {
     private static String ADD_PORTRAIT = "insert into user_extend_info(id,name,value) values(?,?,?)";
     //查询头像信息
     private static String QUERY_PORTRAIT = "select * from user_extend_info where id = ? and name = ?";
+    //查询扩张熟悉
+    private static String QUERY_USER_EXTENDS = "select * from user_extend_info where id = ?";
+
 
     @Autowired
     JdbcTemplate jdbcTemplate;
 
     public void addUser(User user) {
         logger.info("Begin add user {}" + user.getMobile());
-        jdbcTemplate.update(ADD_USER_SQL,user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(),user.getBirthday(),user.getMajorIn(),user.getSex());
+        jdbcTemplate.update(ADD_USER_SQL,user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(),user.getBirthday(),user.getMajorIn(),user.getSex(),user.getDescription());
         logger.info("Add user {} success",user.getMobile());
     }
 
@@ -121,14 +123,31 @@ public class UserDao {
      * @param id
      * @param name
      */
-    public UserExtends queryUserPortrait(String id, String name){
+    public Map queryUserPortrait(String id, String name){
         logger.info("Begin query user portrait");
         try {
-            UserExtends userExtends = jdbcTemplate.queryForObject(QUERY_PORTRAIT, new UserExtendRowMapper(), id, name);
+            Map map = jdbcTemplate.queryForObject(QUERY_PORTRAIT, new UserExtendRowMapper(), id, name);
             logger.info("Query portrait success");
-            return userExtends;
+            return map;
         }catch (EmptyResultDataAccessException e){
             logger.error("Condition query usersPortrait with EmptyResultDataAccessException ",e);
+            return null;
+        }
+    }
+
+    /**
+     * 查询用户扩展信息
+     * @param id
+     * @return
+     */
+    public Map queryUserExtends(String id){
+        logger.info("Begin query user extends");
+        try {
+            Map map = jdbcTemplate.queryForObject(QUERY_USER_EXTENDS, new UserExtendRowMapper(), id);
+            logger.info("Query user extends success");
+            return map;
+        }catch (EmptyResultDataAccessException e){
+            logger.error("Query user extends with EmptyResultDataAccessException ",e);
             return null;
         }
     }

@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements Serializable{
+	private static String DEFAULT_DESCRIPTION = "这个人很懒，什么也没留下";
 
 	public User() {
 	}
@@ -31,6 +32,8 @@ public class User implements Serializable{
 	private String smsCode;
 
 	private byte sex;
+
+	private String description = DEFAULT_DESCRIPTION;
 
 	private Map<String,Object> extendProperties = new ConcurrentHashMap<>();
 
@@ -125,7 +128,13 @@ public class User implements Serializable{
 		this.sex = sex;
 	}
 
+	public String getDescription() {
+		return description;
+	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	public Map<String, Object> getExtendProperties() {
 		return extendProperties;

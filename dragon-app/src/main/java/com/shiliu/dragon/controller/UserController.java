@@ -1,6 +1,5 @@
 package com.shiliu.dragon.controller;
 
-import com.shiliu.dragon.model.user.UserExtends;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.untils.AuthUtils;
 import com.shiliu.dragon.untils.UserInspector;
@@ -75,6 +74,7 @@ public class UserController {
             UserInspector.isValidUserId(id);
             User user = userDao.queryUserById(id);
             if (user != null) {
+                user.setExtendProperties(userDao.queryUserExtends(user.getId()));
                 UserResponse userResponse = UserResponse.QUERY_USER_SUCCESS;
                 userResponse.setMessage(user);
                 logger.info("Query user {} success", id);
@@ -103,6 +103,9 @@ public class UserController {
             logger.warn("Users meet the condition is empty");
             userResponse.setMessage(Collections.EMPTY_LIST);
         } else {
+            for(User user : users){
+                user.setExtendProperties(userDao.queryUserExtends(user.getId()));
+            }
             userResponse.setMessage(users);
         }
         String result = JsonUtil.toJson(userResponse);
@@ -121,6 +124,9 @@ public class UserController {
             logger.warn("Users is empty");
             userResponse.setMessage(Collections.EMPTY_LIST);
         } else {
+            for(User user : users){
+                user.setExtendProperties(userDao.queryUserExtends(user.getId()));
+            }
             userResponse.setMessage(users);
         }
         return JsonUtil.toJson(userResponse);
@@ -159,10 +165,10 @@ public class UserController {
         String name = "portraitUri";
         String value = null;
         //查询是否已经存在头像
-        UserExtends userExtends = userDao.queryUserPortrait(id,name);
-        if( userExtends != null){
+        Map userExtends = userDao.queryUserPortrait(id,name);
+        if( userExtends != null && !userExtends.isEmpty()){
             logger.info("User portrait has existed");
-            localFile = new File(userExtends.getValue());
+            localFile = new File((String)userExtends.get(name));
             value = nginxProperties.getUri()+localFile.getName();
         }else {
             localFile.createNewFile();

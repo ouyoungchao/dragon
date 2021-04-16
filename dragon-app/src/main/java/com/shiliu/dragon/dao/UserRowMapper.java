@@ -1,13 +1,14 @@
 package com.shiliu.dragon.dao;
 
 import com.shiliu.dragon.model.user.User;
-import com.shiliu.dragon.model.user.UserExtends;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ouyangchao
@@ -37,6 +38,7 @@ public class UserRowMapper implements RowMapper<User> {
             user.setOrigin(resultSet.getString("origin"));
             user.setSchool(resultSet.getString("school"));
             user.setMajorIn(resultSet.getString("majorIn"));
+            user.setDescription(resultSet.getString("description"));
         } catch (SQLException throwables) {
             logger.warn("Rows to user error ",throwables);
         }
@@ -45,21 +47,21 @@ public class UserRowMapper implements RowMapper<User> {
 }
 
 
-class UserExtendRowMapper implements RowMapper<UserExtends>{
+class UserExtendRowMapper implements RowMapper<Map>{
     private static Logger logger = LoggerFactory.getLogger(UserExtendRowMapper.class);
 
+    Map<String,Object> map = new HashMap();
+
     @Override
-    public UserExtends mapRow(ResultSet resultSet, int i) throws SQLException {
+    public Map mapRow(ResultSet resultSet, int i) throws SQLException {
         if(resultSet == null){
             return null;
         }
-        UserExtends userExtends = new UserExtends();
         try {
-            userExtends.setName(resultSet.getString("name"));
-            userExtends.setValue(resultSet.getString("value"));
+            map.put(resultSet.getString("name"),resultSet.getString("value"));
         }catch (SQLException throwables) {
             logger.warn("Rows to userextend error ",throwables);
         }
-        return userExtends;
+        return map;
     }
 }
