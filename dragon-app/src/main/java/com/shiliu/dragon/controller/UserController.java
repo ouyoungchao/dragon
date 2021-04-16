@@ -177,6 +177,7 @@ public class UserController {
         if( userExtends != null && !userExtends.isEmpty()){
             logger.info("User portrait has existed");
             localFile = new File((String)userExtends.get(name));
+            file.transferTo(localFile);
             value = nginxProperties.getUri()+localFile.getName();
         }else {
             localFile.createNewFile();
