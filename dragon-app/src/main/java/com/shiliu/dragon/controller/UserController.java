@@ -50,6 +50,7 @@ public class UserController {
         User user = JsonUtil.readValue(userContext, User.class);
         try {
             UserInspector.validUser(user);
+            setDefaultValue(user);
         } catch (ServletRequestBindingException e) {
             logger.error("Check smsCode ServletRequestBindingException ", e);
             return JsonUtil.toJson(SmsResponse.SMSNOTEXIST);
@@ -65,6 +66,13 @@ public class UserController {
         logger.info("Add user {} success", user.getMobile());
         //注册用户
         return JsonUtil.toJson(UserResponse.REGISTER_SUCCESS);
+    }
+
+    private void setDefaultValue(User user) {
+        if(user.getDescription() == null ){
+            user.setDescription(User.DEFAULT_DESCRIPTION);
+        }
+        user.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
     }
 
     @PostMapping("/{id}")

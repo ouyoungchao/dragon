@@ -73,7 +73,6 @@
 			<groupId>org.springframework.social</groupId>
 			<artifactId>spring-social-web</artifactId>
 		</dependency>
-		
 		<!-- 常用工具包 -->
 		<dependency>
 			<groupId>commons-lang</groupId>

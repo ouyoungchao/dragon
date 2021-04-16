@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements Serializable{
-	private static String DEFAULT_DESCRIPTION = "这个人很懒，什么也没留下";
+	public static String DEFAULT_DESCRIPTION = "这个人很懒，什么也没留下";
 
 	public User() {
 	}
@@ -38,9 +38,6 @@ public class User implements Serializable{
 	private Map<String,Object> extendProperties = new ConcurrentHashMap<>();
 
 	public String getId() {
-		if(id == null) {
-			id = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-		}
 		return id;
 	}
 
