@@ -90,4 +90,21 @@ CREATE TABLE `user_role_relation`  (
 -- Records of user_role_relation
 -- ----------------------------
 
+-- ----------------------------
+-- Table structure for user_watcher
+-- ----------------------------
+DROP TABLE IF EXISTS `user_watcher`;
+CREATE TABLE `user_watcher`  (
+  `follow` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `uper` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `id` int(0) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `follower`(`follow`) USING BTREE,
+  UNIQUE INDEX `uper`(`uper`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user_watcher
+-- ----------------------------
+
 SET FOREIGN_KEY_CHECKS = 1;
