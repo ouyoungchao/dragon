@@ -3,6 +3,7 @@ package com.shiliu.dragon.dao;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
 import com.shiliu.dragon.model.user.UserQueryModel;
+import com.shiliu.dragon.properties.NginxProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import java.util.Map;
 public class UserDao {
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static String ADD_USER_SQL = "insert into user_basic_info(id,mobile, password, origin, username,school,birthday,majorIn,sex,description) values(?,?,?,?,?,?,?,?,?,?)";
+    private static String ADD_USER_SQL = "insert into user_basic_info(id,mobile, password, origin, username,school,birthday,majorIn,sex,description,register_time) values(?,?,?,?,?,?,?,?,?,?,?)";
     private static String QUERY_USER_BYID = "select * from user_basic_info where id = ?";
     private static String QUERY_USER_BYMOBILE = "select * from user_basic_info where mobile = ?";
     private static String QUERY_USER_PAGE = "select * from user_basic_info limit ?,?";
@@ -31,6 +32,9 @@ public class UserDao {
     private static String UPDATE_USER = "update user_basic_info set ";
     //插入头像url
     private static String ADD_PORTRAIT = "insert into user_extend_info(id,name,value) values(?,?,?)";
+    //更新头像信息
+    private static String UPDATE_PORTAINT = "update user_extend_info set value = ? where id = ? and name = ?";
+
     //查询头像信息
     private static String QUERY_PORTRAIT = "select * from user_extend_info where id = ? and name = ?";
     //查询扩张熟悉
@@ -40,9 +44,14 @@ public class UserDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private NginxProperties nginxProperties;
+
     public void addUser(User user) {
         logger.info("Begin add user {}" + user.getMobile());
-        jdbcTemplate.update(ADD_USER_SQL,user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(),user.getBirthday(),user.getMajorIn(),user.getSex(),user.getDescription());
+        jdbcTemplate.update(ADD_USER_SQL,user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(),user.getBirthday(),user.getMajorIn(),user.getSex(),user.getDescription(),user.getRegisterTime());
+        //设置用户默认头像信息
+        addUserPortrait(user.getId(),User.PORTRAITURI_NAME,nginxProperties.getUri()+User.PORTRAITURI_DEFAULT_VALUE);
         logger.info("Add user {} success",user.getMobile());
     }
 
@@ -116,6 +125,12 @@ public class UserDao {
         logger.info("Begin to add user portrait");
         jdbcTemplate.update(ADD_PORTRAIT,id,name,value);
         logger.info("Add portrait success");
+    }
+
+    public void updateUserPortrait(String id,String name,String value){
+        logger.info("Begin to update user portrait");
+        jdbcTemplate.update(UPDATE_PORTAINT,value,id,name);
+        logger.info("Update portrait success");
     }
 
     /**

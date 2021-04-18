@@ -4,6 +4,9 @@ import com.shiliu.dragon.untils.UserInspector;
 import com.shiliu.dragon.untils.utils.JsonUtil;
 import com.shiliu.dragon.controller.UserResponse;
 import com.shiliu.dragon.security.validate.code.ValidateCodeException;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
 
 import java.io.Serializable;
@@ -16,46 +19,52 @@ import java.util.List;
  * @description
  */
 public class UserModifyModel implements Serializable {
+    private static Logger logger = LoggerFactory.getLogger(UserModifyModel.class);
+
     private static final String EQUALS = " = ";
 
     private String id;
 
     List<Pair> modifyFilders = new ArrayList<Pair>();
 
-   public boolean isValidFilders() throws ValidateCodeException {
-       if(!modifyFilders.isEmpty()){
-           for (int i=0; i<modifyFilders.size(); i++){
-               Pair filder = modifyFilders.get(i);
-               if(filder.getFirst().toString().equalsIgnoreCase("mobile")){
-                   UserInspector.isValidMobile(filder.getSecond().toString());
-               }
-               if(filder.getFirst().toString().equalsIgnoreCase("password")){
-                   UserInspector.isValidPwd(filder.getSecond().toString());
-               }
-               if (filder.getFirst().toString().equalsIgnoreCase("userName")){
-                   UserInspector.isvalidName(filder.getSecond().toString());
-               }
-           }
-           return true;
-       }
-       throw new ValidateCodeException(JsonUtil.toJson(UserResponse.EMPTY_FILDERS));
-   }
+    public boolean isValidFilders() throws ValidateCodeException {
+        if (!modifyFilders.isEmpty()) {
+            for (int i = 0; i < modifyFilders.size(); i++) {
+                Pair filder = modifyFilders.get(i);
+                if (filder.getFirst().toString().equalsIgnoreCase("mobile")) {
+                    UserInspector.isValidMobile(filder.getSecond().toString());
+                }
+                if (filder.getFirst().toString().equalsIgnoreCase("password")) {
+                    UserInspector.isValidPwd(filder.getSecond().toString());
+                }
+                if (filder.getFirst().toString().equalsIgnoreCase("userName")) {
+                    UserInspector.isvalidName(filder.getSecond().toString());
+                }
 
-    public String model2Sql(){
+            }
+            return true;
+        }
+        throw new ValidateCodeException(JsonUtil.toJson(UserResponse.EMPTY_FILDERS));
+    }
+
+    public String model2Sql() {
         String updateSql = "";
-        if(!modifyFilders.isEmpty()){
-            for (int i=0; i<modifyFilders.size(); i++){
+        if (!modifyFilders.isEmpty()) {
+            for (int i = 0; i < modifyFilders.size(); i++) {
                 Pair filder = modifyFilders.get(i);
                 String name = filder.getFirst().toString();
-                if(name.equalsIgnoreCase("sex")){
-                    updateSql += name + EQUALS + ((byte)filder.getSecond()) + " , ";
-                }else {
+                if (StringUtils.isBlank(filder.getSecond().toString())) {
+                    logger.warn(name + " value is empty");
+
+                } else if (name.equalsIgnoreCase("sex")) {
+                    updateSql += name + EQUALS + ((byte) filder.getSecond()) + " , ";
+                } else {
                     updateSql += name + EQUALS + "\"" + filder.getSecond().toString() + "\"" + " , ";
                 }
             }
         }
-        if(!updateSql.trim().isEmpty()){
-            updateSql = updateSql.substring(0,updateSql.length()-3);
+        if (!updateSql.trim().isEmpty()) {
+            updateSql = updateSql.substring(0, updateSql.length() - 3);
         }
         updateSql += " where id = \"" + id + "\"";
         return updateSql;

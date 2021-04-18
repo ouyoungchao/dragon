@@ -73,6 +73,7 @@ public class UserController {
             user.setDescription(User.DEFAULT_DESCRIPTION);
         }
         user.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
+        user.setRegisterTime(System.currentTimeMillis());
     }
 
     @PostMapping("/{id}")
@@ -170,13 +171,12 @@ public class UserController {
         String uploadPath = nginxProperties.getOrtrait();
         File localFile = new File(uploadPath,new Date().getTime()+suffix);
         String id = AuthUtils.getUserIdFromRequest(request);
-        String name = "portraitUri";
         String value = null;
         //查询是否已经存在头像
-        Map userExtends = userDao.queryUserPortrait(id,name);
-        if( userExtends != null && !userExtends.isEmpty()){
+        Map userExtends = userDao.queryUserPortrait(id,User.PORTRAITURI_NAME);
+        if( userExtends != null && !userExtends.isEmpty() && !userExtends.get(User.PORTRAITURI_NAME).toString().endsWith(User.PORTRAITURI_DEFAULT_VALUE)){
             logger.info("User portrait has existed");
-            localFile = new File((String)userExtends.get(name));
+            localFile = new File((String)userExtends.get(User.PORTRAITURI_NAME));
             file.transferTo(localFile);
             value = nginxProperties.getUri()+localFile.getName();
         }else {
@@ -184,11 +184,11 @@ public class UserController {
             //将传输内容进行转换
             file.transferTo(localFile);
             value = nginxProperties.getUri()+localFile.getName();
-            userDao.addUserPortrait(id,name,value);
+            userDao.updateUserPortrait(id,User.PORTRAITURI_NAME,value);
         }
         UserResponse userResponse = UserResponse.UPLOAD_PORTRAIT_SUCCESS;
         Map<String,String> result = new HashMap<>();
-        result.put(name,value);
+        result.put(User.PORTRAITURI_NAME,value);
         userResponse.setMessage(result);
         logger.info("Upload portrait success");
         return JsonUtil.toJson(userResponse);

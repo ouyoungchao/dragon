@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public class TokenFilter
         extends OncePerRequestFilter implements InitializingBean {
-    Logger logger = LoggerFactory.getLogger(getClass());
+    private static Logger logger = LoggerFactory.getLogger(TokenFilter.class);
 
     @Autowired
     private AuthenticationSuccessHandler myAuthenticationSuccessHandler;
@@ -57,6 +57,7 @@ public class TokenFilter
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
         urls.add("/dragon/user");
+        urls.add("/dragon/authentication");
         certificationFreeUrls.add("/dragon/user/register");
         certificationFreeUrls.add("/dragon/authentication/mobile");
         certificationFreeUrls.add("/dragon/authentication/user");
@@ -68,12 +69,12 @@ public class TokenFilter
                                     HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         logger.info("TokenFilter begin doFilterInternal {}",request.getRequestURI());
-        logger.info("Cookies is {}",request.getCookies());
         //new Exception("SmsCodeFilter").printStackTrace();
         boolean flag = false;
         for (String url : urls) {
             if (pathMatch.matchStart(request.getRequestURI(),url) && !certificationFreeUrls.contains(request.getRequestURI())) {
                 flag = true;
+                break;
             }
         }
         if (flag) {

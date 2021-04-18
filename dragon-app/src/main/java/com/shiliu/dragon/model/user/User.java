@@ -2,11 +2,13 @@ package com.shiliu.dragon.model.user;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements Serializable{
 	public static String DEFAULT_DESCRIPTION = "这个人很懒，什么也没留下";
+	public static String PORTRAITURI_NAME = "portraitUri";
+	//默认头像
+	public static String PORTRAITURI_DEFAULT_VALUE = "defaultPortrait.png";
 
 	public User() {
 	}
@@ -32,6 +34,8 @@ public class User implements Serializable{
 	private String smsCode;
 
 	private byte sex;
+
+	private long registerTime;
 
 	private String description = DEFAULT_DESCRIPTION;
 
@@ -145,4 +149,11 @@ public class User implements Serializable{
 		extendProperties.put(name,values);
 	}
 
+	public long getRegisterTime() {
+		return registerTime;
+	}
+
+	public void setRegisterTime(long registerTime) {
+		this.registerTime = registerTime;
+	}
 }
