@@ -176,7 +176,9 @@ public class UserController {
         Map userExtends = userDao.queryUserPortrait(id,User.PORTRAITURI_NAME);
         if( userExtends != null && !userExtends.isEmpty() && !userExtends.get(User.PORTRAITURI_NAME).toString().endsWith(User.PORTRAITURI_DEFAULT_VALUE)){
             logger.info("User portrait has existed");
-            localFile = new File((String)userExtends.get(User.PORTRAITURI_NAME));
+            String uri = ((String)userExtends.get(User.PORTRAITURI_NAME));
+            String fileName = uri.substring(uri.lastIndexOf("/"));
+            localFile = new File(uploadPath+fileName);
             file.transferTo(localFile);
             value = nginxProperties.getUri()+localFile.getName();
         }else {
