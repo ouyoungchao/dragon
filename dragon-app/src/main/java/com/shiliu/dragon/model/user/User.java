@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements Serializable{
+
+
 	public static String DEFAULT_DESCRIPTION = "这个人很懒，什么也没留下";
 	public static String PORTRAITURI_NAME = "portraitUri";
 	//默认头像
@@ -17,9 +19,9 @@ public class User implements Serializable{
 
 	private String mobile;
 
-	private String password;
+	 private transient String password;
 
-	private String repassword;
+	 private transient String repassword;
 
 	private String origin;
 
@@ -31,7 +33,7 @@ public class User implements Serializable{
 
 	private String majorIn;
 
-	private String smsCode;
+	private transient String smsCode;
 
 	private byte sex;
 

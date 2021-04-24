@@ -1,7 +1,6 @@
 package com.shiliu.dragon.security;
 
-import com.shiliu.dragon.dao.UserDao;
-import com.shiliu.dragon.model.user.DragonSocialUser;
+import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.code.AuthResponse;
 import com.shiliu.dragon.untils.utils.JsonUtil;

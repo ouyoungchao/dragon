@@ -1,10 +1,11 @@
 package com.shiliu.dragon.controller;
 
+import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.untils.AuthUtils;
 import com.shiliu.dragon.untils.UserInspector;
 import com.shiliu.dragon.untils.utils.JsonUtil;
-import com.shiliu.dragon.dao.UserDao;
+import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
 import com.shiliu.dragon.model.user.UserQueryModel;
@@ -163,12 +164,12 @@ public class UserController {
     @PostMapping("/portrait")
     public String uploadPortrait(MultipartFile file,HttpServletRequest request) throws Exception{
         if(file == null|| !(file.getOriginalFilename().endsWith(".jpg") || file.getOriginalFilename().endsWith(".png"))){
-            logger.warn("Upload file is null");
+            logger.warn("Upload file is error {}",file);
             return JsonUtil.toJson(UserResponse.INVALIDPARAM);
         }
         logger.info("Begin upload file " + file.getOriginalFilename());
         String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."),file.getOriginalFilename().length());
-        String uploadPath = nginxProperties.getOrtrait();
+        String uploadPath = nginxProperties.getPortrait();
         File localFile = new File(uploadPath,new Date().getTime()+suffix);
         String id = AuthUtils.getUserIdFromRequest(request);
         String value = null;
@@ -180,12 +181,12 @@ public class UserController {
             String fileName = uri.substring(uri.lastIndexOf("/"));
             localFile = new File(uploadPath+fileName);
             file.transferTo(localFile);
-            value = nginxProperties.getUri()+localFile.getName();
+            value = nginxProperties.getPortraitUri()+localFile.getName();
         }else {
             localFile.createNewFile();
             //将传输内容进行转换
             file.transferTo(localFile);
-            value = nginxProperties.getUri()+localFile.getName();
+            value = nginxProperties.getPortraitUri()+localFile.getName();
             userDao.updateUserPortrait(id,User.PORTRAITURI_NAME,value);
         }
         UserResponse userResponse = UserResponse.UPLOAD_PORTRAIT_SUCCESS;

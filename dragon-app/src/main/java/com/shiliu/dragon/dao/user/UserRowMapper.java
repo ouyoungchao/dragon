@@ -1,4 +1,4 @@
-package com.shiliu.dragon.dao;
+package com.shiliu.dragon.dao.user;
 
 import com.shiliu.dragon.model.user.User;
 import org.slf4j.Logger;
@@ -29,6 +29,7 @@ public class UserRowMapper implements RowMapper<User> {
         }
         User user = new User();
         try {
+            // TODO: 2021/4/23 改成使用反射方式赋值
             user.setId(resultSet.getString("id"));
             user.setBirthday(resultSet.getLong("birthday"));
             user.setSex(resultSet.getByte("sex"));

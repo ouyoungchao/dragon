@@ -1,4 +1,4 @@
-package com.shiliu.dragon.dao;
+package com.shiliu.dragon.dao.user;
 
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
@@ -51,7 +51,7 @@ public class UserDao {
         logger.info("Begin add user {}" + user.getMobile());
         jdbcTemplate.update(ADD_USER_SQL,user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(),user.getBirthday(),user.getMajorIn(),user.getSex(),user.getDescription(),user.getRegisterTime());
         //设置用户默认头像信息
-        addUserPortrait(user.getId(),User.PORTRAITURI_NAME,nginxProperties.getUri()+User.PORTRAITURI_DEFAULT_VALUE);
+        addUserPortrait(user.getId(),User.PORTRAITURI_NAME,nginxProperties.getPortraitUri()+User.PORTRAITURI_DEFAULT_VALUE);
         logger.info("Add user {} success",user.getMobile());
     }
 

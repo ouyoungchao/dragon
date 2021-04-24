@@ -1,7 +1,7 @@
 package com.shiliu.dragon.untils;
 
 import com.shiliu.dragon.untils.cache.SessionCache;
-import com.shiliu.dragon.controller.UserResponse;
+import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.code.SmsResponse;
 import com.shiliu.dragon.security.validate.code.ValidateCode;
@@ -47,7 +47,7 @@ public class UserInspector {
         return true;
     }
 
-    private static boolean isValidSex(byte sex) {
+    public static boolean isValidSex(int sex) {
         if(sex == 0 || sex == 1 || sex == -1){
             return true;
         }else{

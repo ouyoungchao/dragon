@@ -14,6 +14,9 @@ public class JsonUtil {
     private static ObjectMapper objectMap = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public static String toJson(Object object){
+        if (object == null){
+            return null;
+        }
         try {
             String json = objectMap.writeValueAsString(object);
             return json;
@@ -27,13 +30,15 @@ public class JsonUtil {
         if (objectMap == null) {
             objectMap = new ObjectMapper();
         }
+        if(content == null){
+            return null;
+        }
         try {
             //字符串转Json对象
             return objectMap.readValue(content, valueType);
         } catch (Exception e) {
             logger.error("Json to object error",e);
         }
-
         return null;
     }
 }

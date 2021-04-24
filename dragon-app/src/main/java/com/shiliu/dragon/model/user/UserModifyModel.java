@@ -2,12 +2,10 @@ package com.shiliu.dragon.model.user;
 
 import com.shiliu.dragon.untils.UserInspector;
 import com.shiliu.dragon.untils.utils.JsonUtil;
-import com.shiliu.dragon.controller.UserResponse;
 import com.shiliu.dragon.security.validate.code.ValidateCodeException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.util.Pair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,20 +23,23 @@ public class UserModifyModel implements Serializable {
 
     private String id;
 
-    List<Pair> modifyFilders = new ArrayList<Pair>();
+    List<UserPair> modifyFilders = new ArrayList<UserPair>();
 
     public boolean isValidFilders() throws ValidateCodeException {
         if (!modifyFilders.isEmpty()) {
             for (int i = 0; i < modifyFilders.size(); i++) {
-                Pair filder = modifyFilders.get(i);
-                if (filder.getFirst().toString().equalsIgnoreCase("mobile")) {
-                    UserInspector.isValidMobile(filder.getSecond().toString());
+                UserPair filder = modifyFilders.get(i);
+                if (filder.getKey().toString().equalsIgnoreCase("mobile")) {
+                    UserInspector.isValidMobile(filder.getValue().toString());
                 }
-                if (filder.getFirst().toString().equalsIgnoreCase("password")) {
-                    UserInspector.isValidPwd(filder.getSecond().toString());
+                if (filder.getKey().toString().equalsIgnoreCase("password")) {
+                    UserInspector.isValidPwd(filder.getValue().toString());
                 }
-                if (filder.getFirst().toString().equalsIgnoreCase("userName")) {
-                    UserInspector.isvalidName(filder.getSecond().toString());
+                if (filder.getKey().toString().equalsIgnoreCase("userName")) {
+                    UserInspector.isvalidName(filder.getValue().toString());
+                }
+                if(filder.getKey().toString().equalsIgnoreCase("sex")){
+                    UserInspector.isValidSex((int)filder.getValue());
                 }
 
             }
@@ -51,15 +52,15 @@ public class UserModifyModel implements Serializable {
         String updateSql = "";
         if (!modifyFilders.isEmpty()) {
             for (int i = 0; i < modifyFilders.size(); i++) {
-                Pair filder = modifyFilders.get(i);
-                String name = filder.getFirst().toString();
-                if (StringUtils.isBlank(filder.getSecond().toString())) {
+                UserPair filder = modifyFilders.get(i);
+                String name = filder.getKey().toString();
+                if (StringUtils.isBlank(filder.getValue().toString())) {
                     logger.warn(name + " value is empty");
 
                 } else if (name.equalsIgnoreCase("sex")) {
-                    updateSql += name + EQUALS + ((byte) filder.getSecond()) + " , ";
+                    updateSql += name + EQUALS + (filder.getValue()) + " , ";
                 } else {
-                    updateSql += name + EQUALS + "\"" + filder.getSecond().toString() + "\"" + " , ";
+                    updateSql += name + EQUALS + "\"" + filder.getValue().toString() + "\"" + " , ";
                 }
             }
         }
@@ -86,11 +87,11 @@ public class UserModifyModel implements Serializable {
         this.id = id;
     }
 
-    public List<Pair> getModifyFilders() {
+    public List<UserPair> getModifyFilders() {
         return modifyFilders;
     }
 
-    public void setModifyFilders(List<Pair> modifyFilders) {
+    public void setModifyFilders(List<UserPair> modifyFilders) {
         this.modifyFilders = modifyFilders;
     }
 }

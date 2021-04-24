@@ -1,4 +1,4 @@
-package com.shiliu.dragon.controller;
+package com.shiliu.dragon.model.user;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;

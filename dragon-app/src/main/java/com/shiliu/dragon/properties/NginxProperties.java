@@ -13,23 +13,44 @@ import org.springframework.stereotype.Component;
 @Component
 public class NginxProperties {
 
-    private String ortrait;
+    private String portrait;
 
-    private String uri;
+    private String portraitUri;
+    //内容中心图片存储地址
+    private String content;
+    //内容中心图片访问地址
+    private String contentUri;
 
-    public String getOrtrait() {
-        return ortrait;
+
+    public String getPortrait() {
+        return portrait;
     }
 
-    public void setOrtrait(String ortrait) {
-        this.ortrait = ortrait;
+    public void setPortrait(String portrait) {
+        this.portrait = portrait;
     }
 
-    public String getUri() {
-        return uri;
+    public String getPortraitUri() {
+        return portraitUri;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public void setPortraitUri(String portraitUri) {
+        this.portraitUri = portraitUri;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public String getContentUri() {
+        return contentUri;
+    }
+
+    public void setContentUri(String contentUri) {
+        this.contentUri = contentUri;
     }
 }

@@ -41,9 +41,9 @@ public class TokenFilter
     private SimpleUrlAuthenticationFailureHandler myAuthenticationFailureHandler;
 
 
-    private Set<String> urls = new HashSet<String>();
+    private Set<String> needAuthurls = new HashSet<String>();
 
-    private Set<String> certificationFreeUrls = new HashSet<>();
+    private Set<String> freeAuthUrls = new HashSet<>();
 
     private AntPathMatcher pathMatch = new AntPathMatcher();
 
@@ -56,12 +56,13 @@ public class TokenFilter
     @Override
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
-        urls.add("/dragon/user");
-        urls.add("/dragon/authentication");
-        certificationFreeUrls.add("/dragon/user/register");
-        certificationFreeUrls.add("/dragon/authentication/mobile");
-        certificationFreeUrls.add("/dragon/authentication/user");
-        certificationFreeUrls.add("/dragon/code/sms");
+        needAuthurls.add("/dragon/user");
+        needAuthurls.add("/dragon/content");
+        needAuthurls.add("/dragon/authentication");
+        freeAuthUrls.add("/dragon/user/register");
+        freeAuthUrls.add("/dragon/authentication/mobile");
+        freeAuthUrls.add("/dragon/authentication/user");
+        freeAuthUrls.add("/dragon/code/sms");
     }
 
     @Override
@@ -71,19 +72,19 @@ public class TokenFilter
         logger.info("TokenFilter begin doFilterInternal {}",request.getRequestURI());
         //new Exception("SmsCodeFilter").printStackTrace();
         boolean flag = false;
-        for (String url : urls) {
-            if (pathMatch.matchStart(request.getRequestURI(),url) && !certificationFreeUrls.contains(request.getRequestURI())) {
+        for (String url : needAuthurls) {
+            if (pathMatch.matchStart(request.getRequestURI(),url) && !freeAuthUrls.contains(request.getRequestURI())) {
                 flag = true;
                 break;
             }
         }
         if (flag) {
             ServletWebRequest servletWebRequest = new ServletWebRequest(request);
-            if (!existToken(servletWebRequest)) {
+            if (getToken(servletWebRequest) == null) {
                 myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
                 return;
             }
-			String token = request.getHeader("token");
+			String token = getToken(servletWebRequest);
 			String id = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
             Object object = SessionCache.getValueFromCache(id);
             if(object == null){
@@ -96,7 +97,7 @@ public class TokenFilter
             logger.debug("get authentication {}",authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);
-        }else if (!certificationFreeUrls.contains(request.getRequestURI())){
+        }else if (!freeAuthUrls.contains(request.getRequestURI())){
             logger.warn("The url {} no need auth",request.getRequestURI());
             myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
             return;
@@ -106,24 +107,20 @@ public class TokenFilter
         }
     }
 
-    private boolean existToken(ServletWebRequest request) throws ServletRequestBindingException {
+    private String getToken(ServletWebRequest request) throws ServletRequestBindingException {
         //imageCode为login.html中的值
         String token = request.getHeader("token");
-        //判断验证码的逻辑
+        //适配ios post请求body传递不了token做特殊定制化逻辑
         if (StringUtils.isBlank(token)) {
-            logger.warn("The token is error");
-            return false;
+            token = request.getParameter("token");
+            logger.debug("The body param is {} ",token);
+            if(StringUtils.isBlank(token)) {
+                logger.warn("The token is error");
+                return null;
+            }
         }
-		return true;
+		return token;
 
-    }
-
-    public Set<String> getUrls() {
-        return urls;
-    }
-
-    public void setUrls(Set<String> urls) {
-        this.urls = urls;
     }
 
     public SecurityProperties getSecurityProperties() {
