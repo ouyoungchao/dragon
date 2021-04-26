@@ -21,6 +21,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -80,11 +81,11 @@ public class TokenFilter
         }
         if (flag) {
             ServletWebRequest servletWebRequest = new ServletWebRequest(request);
-            if (getToken(servletWebRequest) == null) {
+            if (getToken(request) == null) {
                 myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
                 return;
             }
-			String token = getToken(servletWebRequest);
+			String token = getToken(request);
 			String id = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
             Object object = SessionCache.getValueFromCache(id);
             if(object == null){
@@ -107,7 +108,7 @@ public class TokenFilter
         }
     }
 
-    private String getToken(ServletWebRequest request) throws ServletRequestBindingException {
+    private String getToken(HttpServletRequest request) throws ServletRequestBindingException {
         //imageCode为login.html中的值
         String token = request.getHeader("token");
         //适配ios post请求body传递不了token做特殊定制化逻辑
@@ -115,6 +116,19 @@ public class TokenFilter
             token = request.getParameter("token");
             logger.debug("The body param is {} ",token);
             if(StringUtils.isBlank(token)) {
+                //适配ios无法header传参
+              /*  try {
+                    Collection<Part> parts = request.getParts();
+                    if(parts != null && parts.isEmpty()){
+                        for(Part part : parts){
+                            part.getName();
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.warn("Get part error ",e);
+                } catch (ServletException e) {
+                    logger.warn("Get part error ",e);
+                }*/
                 logger.warn("The token is error");
                 return null;
             }

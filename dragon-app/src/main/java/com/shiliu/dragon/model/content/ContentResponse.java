@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  */
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum ContentResponse {
+    CONTENT_PARAM_ERROR(3000,"Content param error"),
     PUBLISH_SUCCESS(3001,"Publish content success"),
     PUBLISH_FAILED(3002,"Publish Content Failed"),
-    CONTENT_PARAM_ERROR(3000,"Content param error"),
     CONTENT_INVALID(3003,"Not meet legal requirement"),
     MESSAGE_INVALID(3004,"Message is invalid"),
 
@@ -28,8 +28,8 @@ public enum ContentResponse {
     COMMENTS_QUERYPARAM_FAIED(3032,"Comments query error"),
 
     CONTENT_QUERY_PARAMERROR(3040,"Query contents params error"),
-    CONTENT_QUERY_FAILED(3041,"Query contents failed"),
-    CONTENT_QUERY_SUCCESS(3042,"Query contents success"),
+    CONTENT_QUERY_FAILED(3042,"Query contents failed"),
+    CONTENT_QUERY_SUCCESS(3041,"Query contents success"),
 
     ;
 
