@@ -123,7 +123,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 					//图形验证码授权
 					"/dragon/code/image",
 					"/dragon/code/sms",
-					"/dragon/user/register"
+					"/dragon/user/register",
+					"/dragon/content/publish"
 					/*"/dragon/user/register"*/).permitAll()
 					//授权		
 				.anyRequest()

@@ -57,6 +57,9 @@ public class ContentController {
         if (content != null && !ContentInspector.isValidMessage(content.getMessage())) {
             return JsonUtil.toJson(ContentResponse.MESSAGE_INVALID);
         }
+        if(content == null){
+            content = new Content();
+        }
         if (files != null && !files.isEmpty()) {
             content.setAnnex(uploadContentPicture(files));
         }

@@ -61,6 +61,7 @@ public class TokenFilter
         needAuthurls.add("/dragon/content");
         needAuthurls.add("/dragon/authentication");
         freeAuthUrls.add("/dragon/user/register");
+        freeAuthUrls.add("/dragon/content/publish");
         freeAuthUrls.add("/dragon/authentication/mobile");
         freeAuthUrls.add("/dragon/authentication/user");
         freeAuthUrls.add("/dragon/code/sms");
