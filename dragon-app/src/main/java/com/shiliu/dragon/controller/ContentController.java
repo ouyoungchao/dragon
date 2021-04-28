@@ -7,6 +7,7 @@ import com.shiliu.dragon.model.content.ContentQueryModel;
 import com.shiliu.dragon.model.content.ContentResponse;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.untils.ContentInspector;
+import com.shiliu.dragon.untils.PictureUtils;
 import com.shiliu.dragon.untils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,7 @@ public class ContentController {
             content = new Content();
         }
         if (files != null && !files.isEmpty()) {
-            content.setAnnex(uploadContentPicture(files));
+            content.setAnnex(PictureUtils.uploadPicture(files,nginxProperties.getContent(),nginxProperties.getContentUri()));
         }
         setDefaultValue(content);
         try {
@@ -157,34 +158,6 @@ public class ContentController {
             logger.warn("Add comments failed");
             return JsonUtil.toJson(ContentResponse.COMMENTS_QUERYPARAM_ERROR);
         }
-    }
-
-    private List<String> uploadContentPicture(List<MultipartFile> files) {
-        List<String> picutures = new ArrayList<>();
-        if (files.isEmpty()) {
-            return picutures;
-        }
-        for (MultipartFile picture : files) {
-            if (picture == null || !(picture.getOriginalFilename().endsWith(".jpg") || picture.getOriginalFilename().endsWith(".png"))) {
-                logger.warn("Upload file is error {}", picture);
-                continue;
-            }
-            logger.info("Begin upload file " + picture.getOriginalFilename());
-            //获取文件后缀
-            String suffix = picture.getOriginalFilename().substring(picture.getOriginalFilename().lastIndexOf("."), picture.getOriginalFilename().length());
-            String uploadPath = nginxProperties.getContent();
-            File localFile = new File(uploadPath, new Date().getTime() + suffix);
-            try {
-                localFile.createNewFile();
-                //将传输内容进行转换
-                picture.transferTo(localFile);
-                String url = nginxProperties.getContentUri() + localFile.getName();
-                picutures.add(url);
-            } catch (IOException e) {
-                logger.warn("Upload picture to ngnix failed ", e);
-            }
-        }
-        return picutures;
     }
 
     private void setDefaultValue(Content content) {

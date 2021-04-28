@@ -20,6 +20,10 @@ public class NginxProperties {
     private String content;
     //内容中心图片访问地址
     private String contentUri;
+    //审计图片上传地址
+    private String audit;
+    //审计图片访问uri
+    private String auditUr;
 
 
     public String getPortrait() {
@@ -52,5 +56,21 @@ public class NginxProperties {
 
     public void setContentUri(String contentUri) {
         this.contentUri = contentUri;
+    }
+
+    public String getAudit() {
+        return audit;
+    }
+
+    public void setAudit(String audit) {
+        this.audit = audit;
+    }
+
+    public String getAuditUr() {
+        return auditUr;
+    }
+
+    public void setAuditUr(String auditUr) {
+        this.auditUr = auditUr;
     }
 }

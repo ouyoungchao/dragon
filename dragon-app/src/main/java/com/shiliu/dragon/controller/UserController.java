@@ -59,7 +59,7 @@ public class UserController {
             logger.error("Check smsCode IOException ", e);
             return e.getMessage();
         }
-        if(userDao.queryUserByMobile(user.getMobile()) != null){
+        if (userDao.queryUserByMobile(user.getMobile()) != null) {
             logger.error("The mobile has register");
             return JsonUtil.toJson(UserResponse.MOBILE_REGISTED);
         }
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     private void setDefaultValue(User user) {
-        if(user.getDescription() == null ){
+        if (user.getDescription() == null) {
             user.setDescription(User.DEFAULT_DESCRIPTION);
         }
         user.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
@@ -100,6 +100,7 @@ public class UserController {
 
     /**
      * 条件查询接口
+     *
      * @param request
      * @return
      */
@@ -113,13 +114,13 @@ public class UserController {
             logger.warn("Users meet the condition is empty");
             userResponse.setMessage(Collections.EMPTY_LIST);
         } else {
-            for(User user : users){
+            for (User user : users) {
                 user.setExtendProperties(userDao.queryUserExtends(user.getId()));
             }
             userResponse.setMessage(users);
         }
         String result = JsonUtil.toJson(userResponse);
-        logger.info("result {} ",result);
+        logger.info("result {} ", result);
         return result;
     }
 
@@ -134,7 +135,7 @@ public class UserController {
             logger.warn("Users is empty");
             userResponse.setMessage(Collections.EMPTY_LIST);
         } else {
-            for(User user : users){
+            for (User user : users) {
                 user.setExtendProperties(userDao.queryUserExtends(user.getId()));
             }
             userResponse.setMessage(users);
@@ -143,17 +144,17 @@ public class UserController {
     }
 
     @PostMapping("/modify")
-    public String modifyUser(@RequestBody String userInfo,HttpServletRequest request){
-        logger.info("Begin modify user {}",userInfo);
-        UserModifyModel userModifyModel = JsonUtil.readValue(userInfo,UserModifyModel.class);
-        if(userModifyModel == null){
+    public String modifyUser(@RequestBody String userInfo, HttpServletRequest request) {
+        logger.info("Begin modify user {}", userInfo);
+        UserModifyModel userModifyModel = JsonUtil.readValue(userInfo, UserModifyModel.class);
+        if (userModifyModel == null) {
             return JsonUtil.toJson(UserResponse.INVALIDPARAM);
         }
         userModifyModel.setId(AuthUtils.getUserIdFromRequest(request));
         try {
             userModifyModel.isValidFilders();
-        }catch (ValidateCodeException e){
-            logger.error("ModifyUser with ValidateCodeException",e);
+        } catch (ValidateCodeException e) {
+            logger.error("ModifyUser with ValidateCodeException", e);
             return e.getMessage();
         }
         userDao.updateUser(userModifyModel);
@@ -162,38 +163,60 @@ public class UserController {
     }
 
     @PostMapping("/portrait")
-    public String uploadPortrait(MultipartFile file,HttpServletRequest request) throws Exception{
-        if(file == null|| !(file.getOriginalFilename().endsWith(".jpg") || file.getOriginalFilename().endsWith(".png"))){
-            logger.warn("Upload file is error {}",file);
+    public String uploadPortrait(MultipartFile file, HttpServletRequest request) throws Exception {
+        if (file == null || !(file.getOriginalFilename().endsWith(".jpg") || file.getOriginalFilename().endsWith(".png"))) {
+            logger.warn("Upload file is error {}", file);
             return JsonUtil.toJson(UserResponse.INVALIDPARAM);
         }
         logger.info("Begin upload file " + file.getOriginalFilename());
-        String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."),file.getOriginalFilename().length());
+        String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."), file.getOriginalFilename().length());
         String uploadPath = nginxProperties.getPortrait();
-        File localFile = new File(uploadPath,new Date().getTime()+suffix);
+        File localFile = new File(uploadPath, new Date().getTime() + suffix);
         String id = AuthUtils.getUserIdFromRequest(request);
+        if (id == null) {
+            logger.warn("userId is null");
+            return JsonUtil.toJson(UserResponse.INVALIDPARAM);
+        }
         String value = null;
         //查询是否已经存在头像
-        Map userExtends = userDao.queryUserPortrait(id,User.PORTRAITURI_NAME);
-        if( userExtends != null && !userExtends.isEmpty() && !userExtends.get(User.PORTRAITURI_NAME).toString().endsWith(User.PORTRAITURI_DEFAULT_VALUE)){
+        Map userExtends = userDao.queryUserPortrait(id, User.PORTRAITURI_NAME);
+        if (userExtends != null && !userExtends.isEmpty() && !userExtends.get(User.PORTRAITURI_NAME).toString().endsWith(User.PORTRAITURI_DEFAULT_VALUE)) {
             logger.info("User portrait has existed");
-            String uri = ((String)userExtends.get(User.PORTRAITURI_NAME));
+            String uri = ((String) userExtends.get(User.PORTRAITURI_NAME));
             String fileName = uri.substring(uri.lastIndexOf("/"));
-            localFile = new File(uploadPath+fileName);
+            localFile = new File(uploadPath + fileName);
             file.transferTo(localFile);
-            value = nginxProperties.getPortraitUri()+localFile.getName();
-        }else {
+            value = nginxProperties.getPortraitUri() + localFile.getName();
+            try {
+                userDao.updateUserPortrait(id, User.PORTRAITURI_NAME, value);
+            } catch (Exception e) {
+                logger.warn("Update portrait failed ", e);
+                return JsonUtil.toJson(UserResponse.MODIFY_PORTRAIT_FAILED);
+            }
+            UserResponse userResponse = UserResponse.MODIFY_PORTRAIT_SUCCESS;
+            Map<String, String> result = new HashMap<>();
+            result.put(User.PORTRAITURI_NAME, value);
+            userResponse.setMessage(result);
+            logger.info("Upload portrait success");
+            return JsonUtil.toJson(userResponse);
+        } else {
             localFile.createNewFile();
             //将传输内容进行转换
             file.transferTo(localFile);
-            value = nginxProperties.getPortraitUri()+localFile.getName();
-            userDao.updateUserPortrait(id,User.PORTRAITURI_NAME,value);
+            value = nginxProperties.getPortraitUri() + localFile.getName();
+            try {
+                userDao.addUserPortrait(id, User.PORTRAITURI_NAME, value);
+            } catch (Exception e) {
+                logger.warn("Upload portrait failed");
+                return JsonUtil.toJson(UserResponse.UPLOAD_PORTRAIT_FAILED);
+            }
+            UserResponse userResponse = UserResponse.UPLOAD_PORTRAIT_SUCCESS;
+            Map<String, String> result = new HashMap<>();
+            result.put(User.PORTRAITURI_NAME, value);
+            userResponse.setMessage(result);
+            logger.info("Upload portrait success");
+            return JsonUtil.toJson(userResponse);
         }
-        UserResponse userResponse = UserResponse.UPLOAD_PORTRAIT_SUCCESS;
-        Map<String,String> result = new HashMap<>();
-        result.put(User.PORTRAITURI_NAME,value);
-        userResponse.setMessage(result);
-        logger.info("Upload portrait success");
-        return JsonUtil.toJson(userResponse);
+
     }
 }

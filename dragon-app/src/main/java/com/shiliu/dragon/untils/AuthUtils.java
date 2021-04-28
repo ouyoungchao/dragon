@@ -11,9 +11,13 @@ import java.util.Base64;
  */
 public class AuthUtils {
 
-    public static String getUserIdFromRequest(HttpServletRequest request){
+    public static String getUserIdFromRequest(HttpServletRequest request) {
         String token = request.getHeader("token");
-        if(token != null){
+        //适配ios的header无法传token问题
+        if (token == null) {
+            request.getParameter("token");
+        }
+        if (token != null) {
             return new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
         }
         return null;

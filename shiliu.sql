@@ -11,7 +11,7 @@
  Target Server Version : 80022
  File Encoding         : 65001
 
- Date: 24/04/2021 16:11:08
+ Date: 29/04/2021 00:52:00
 */
 
 SET NAMES utf8mb4;
@@ -41,6 +41,7 @@ CREATE TABLE `content_basic_info`  (
 -- ----------------------------
 INSERT INTO `content_basic_info` VALUES ('19cdc96a200144469af7eb751e63393a', '3d814e9435274e758c799f9b1fae0d2b', 'hello content', '[\"/dragon/document/content/1619111767289.jpg\",\"/dragon/document/content/1619111767306.jpg\"]', '1619111767317', NULL, NULL, NULL, NULL, NULL);
 INSERT INTO `content_basic_info` VALUES ('3e05922707c04451a96757bf0aeb4186', '3d814e9435274e758c799f9b1fae0d2b', 'hello content', '[\"/dragon/document/content/1619111773449.jpg\",\"/dragon/document/content/1619111773472.jpg\"]', '1619111773490', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `content_basic_info` VALUES ('9fd6b8a3ac4648a1b909b2fb4b347ef4', '3d814e9435274e758c799f9b1fae0d2b', 'hello content', '[\"/dragon/document/content/1619262657146.jpg\",\"/dragon/document/content/1619262657166.jpg\"]', '1619262657182', NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for content_comments
@@ -90,6 +91,26 @@ CREATE TABLE `role_info`  (
 
 -- ----------------------------
 -- Records of role_info
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for user_audit_info
+-- ----------------------------
+DROP TABLE IF EXISTS `user_audit_info`;
+CREATE TABLE `user_audit_info`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `userId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `meterials` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `status` char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `postData` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `auditData` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `managerId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `isManager` char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user_audit_info
 -- ----------------------------
 
 -- ----------------------------
@@ -162,7 +183,7 @@ CREATE TABLE `user_watcher`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `follower`(`follow`) USING BTREE,
   UNIQUE INDEX `uper`(`uper`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_watcher
