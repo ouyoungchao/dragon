@@ -60,6 +60,11 @@
 			<version>5.1.46</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
 	</dependencies>
 	
 	<!-- 按照SpringBoot将项目打包 -->
