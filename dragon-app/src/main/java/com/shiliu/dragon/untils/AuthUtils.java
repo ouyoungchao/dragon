@@ -15,7 +15,7 @@ public class AuthUtils {
         String token = request.getHeader("token");
         //适配ios的header无法传token问题
         if (token == null) {
-            request.getParameter("token");
+            token = request.getParameter("token");
         }
         if (token != null) {
             return new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));

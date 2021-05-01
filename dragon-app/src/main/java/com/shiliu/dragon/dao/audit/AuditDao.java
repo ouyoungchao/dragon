@@ -16,15 +16,15 @@ import org.springframework.stereotype.Repository;
 public class AuditDao {
     private static final Logger logger = LoggerFactory.getLogger(AuditDao.class);
 
-    private static final String ADDAUDIT = "insert into user_audit_info(id,userId,meterials,status,postData,auditData,managerId,isManager) valuse(?,?,?,?,?,?,?,?)";
+    private static final String ADDAUDIT = "insert into user_audit_info(id,userId,meterials,status,postData,auditData,managerId,isManager) values(?,?,?,?,?,?,?,?)";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
 
     public void addAudit(Audits audits){
         logger.info("Begin add audit {} ",audits);
-        jdbcTemplate.update(ADDAUDIT,audits.getId(),audits.getUserId(),audits.getMeterials(),audits.getStatus(),audits.getPostData(),audits.getAuditData(),audits.getManagerId(), audits.isManager()?1:0);
-        logger.info("Begin add audit success");
+        jdbcTemplate.update(ADDAUDIT,audits.getId(),audits.getUserId(),audits.getMeterials(),(int)audits.getStatus(),audits.getPostData(),audits.getAuditData(),audits.getManagerId(), audits.isManager()?1:0);
+        logger.info("Add audit success");
     }
 
 }

@@ -94,7 +94,7 @@ public class Audits {
                 "id='" + id + '\'' +
                 ", userId='" + userId + '\'' +
                 ", meterials='" + meterials + '\'' +
-                ", status=" + status +
+                ", status=" + (int)status +
                 ", postData=" + postData +
                 ", auditData=" + auditData +
                 ", managerId='" + managerId + '\'' +

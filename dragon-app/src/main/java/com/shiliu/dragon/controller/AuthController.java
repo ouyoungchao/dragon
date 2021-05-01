@@ -52,25 +52,26 @@ public class AuthController {
 
     @PostMapping("/student")
     public String studentsAuth(HttpServletRequest request){
-        return uploadAudit((MultipartHttpServletRequest) request,false);
+        return uploadAudit(request,false);
     }
 
-    @PostMapping("/mananger")
+    @PostMapping("/manager")
     public String managerAuth(HttpServletRequest request){
-        return uploadAudit((MultipartHttpServletRequest) request,true);
+        return uploadAudit(request,true);
     }
 
     private void setDefaultValue(Audits audits) {
         audits.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
     }
 
-    private String  uploadAudit(MultipartHttpServletRequest request,boolean isManager){
-        List<MultipartFile> files = request.getFiles("file");
+    private String  uploadAudit(HttpServletRequest request,boolean isManager){
+        String userId = AuthUtils.getUserIdFromRequest(request);
+        MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest)request;
+        List<MultipartFile> files = multipartHttpServletRequest.getFiles("file");
         if (files == null || files.isEmpty()) {
             logger.warn("Param is invalid {}", files);
             return JsonUtil.toJson(AuditResponse.AUDIT_PARAM_ERROR);
         }
-        String userId = AuthUtils.getUserIdFromRequest(request);
         List<String> meterials = PictureUtils.uploadPicture(files,nginxProperties.getAudit(),nginxProperties.getContentUri());
         Audits audits = new Audits(userId,JsonUtil.toJson(meterials),(char)0,System.currentTimeMillis(),isManager);
         setDefaultValue(audits);
