@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import com.shiliu.dragon.security.properties.SecurityProperties;
 import com.shiliu.dragon.security.validate.code.AuthResponse;
 import org.slf4j.Logger;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,9 +44,12 @@ public class DragonAuthenticationFailureHandler extends
             response.getWriter().write(exception.getMessage());
         } else if (exception instanceof BadCredentialsException) {
             response.getWriter().write(exception.getMessage());
+        } else if(request.getRequestURI().equalsIgnoreCase("/")){
+            response.sendRedirect("login.html");
         } else {
             //将authentication以json的形式输出到前端
             response.getWriter().write(JsonUtil.toJson(AuthResponse.AUTH_FAILED));
         }
+
     }
 }

@@ -1,4 +1,4 @@
-package com.shiliu.dragon.untils;
+package com.shiliu.dragon.utils;
 
 import org.apache.commons.lang.StringUtils;
 

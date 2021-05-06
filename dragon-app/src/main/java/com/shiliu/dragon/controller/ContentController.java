@@ -6,9 +6,9 @@ import com.shiliu.dragon.model.content.Content;
 import com.shiliu.dragon.model.content.ContentQueryModel;
 import com.shiliu.dragon.model.content.ContentResponse;
 import com.shiliu.dragon.properties.NginxProperties;
-import com.shiliu.dragon.untils.ContentInspector;
-import com.shiliu.dragon.untils.PictureUtils;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.ContentInspector;
+import com.shiliu.dragon.utils.PictureUtils;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**

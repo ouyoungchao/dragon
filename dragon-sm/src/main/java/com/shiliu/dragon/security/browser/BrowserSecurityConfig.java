@@ -52,10 +52,22 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 	
 	@Autowired
 	private SpringSocialConfigurer socialSecurityConfig;
+
+	@Autowired
+	private SmsCodeFilter smsCodeFilter;
+
+	@Autowired
+	private ValidateCodeFilter validateCodeFilter;
+
+	@Autowired
+	private TokenFilter tokenFilter;
 	
 	@Autowired
 	private SmsCodeAuthenticationSecurityConfig smsCodeAuthenticationSecurityConfig;
-	
+
+	@Autowired
+	private UserAuthenticationFilter userAuthenticationFilter;
+
 	@Bean
 	public PersistentTokenRepository tokenRepository(){
 		JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
@@ -69,25 +81,21 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 	protected void configure(HttpSecurity http) throws Exception {
 		logger.info("Enter BrowseSecurityConfig#config");
 		//验证码逻辑
-		ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
 		validateCodeFilter.setAuthenticationFailureHandler(dragonAuthenticationFailureHandler);
 		validateCodeFilter.setSecurityProperties(securityProperties);
 		validateCodeFilter.afterPropertiesSet();
 
 		//短息验证码逻辑
-		SmsCodeFilter smsCodeFilter = new SmsCodeFilter();
 		smsCodeFilter.setAuthenticationFailureHandler(dragonAuthenticationFailureHandler);
 		smsCodeFilter.setSecurityProperties(securityProperties);
 		smsCodeFilter.afterPropertiesSet();
 
 		//校验token
-		TokenFilter tokenFilter = new TokenFilter();
 		tokenFilter.setMyAuthenticationFailureHandler(dragonAuthenticationFailureHandler);
 		tokenFilter.setMyAuthenticationSuccessHandler(dragonAuthenticationSuccessHandler);
 		tokenFilter.setSecurityProperties(securityProperties);
 		tokenFilter.afterPropertiesSet();
 
-		UserAuthenticationFilter userAuthenticationFilter = new UserAuthenticationFilter();
 		userAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
 		userAuthenticationFilter.setAuthenticationSuccessHandler(dragonAuthenticationSuccessHandler);
 		userAuthenticationFilter.setAuthenticationFailureHandler(dragonAuthenticationFailureHandler);
@@ -101,7 +109,7 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 				//表单登录即认证
 			.formLogin()
 				//指定登录页面
-				//.loginPage("/dragon/authentication/require")
+				.loginPage("/login.html")
 				//表单登录时UsernamePasswordAuthenticationFilter处理这个请求
 				.loginProcessingUrl("/dragon/authentication/user")
 				//表单登陆后使用定义的处理器
@@ -124,7 +132,8 @@ public class BrowserSecurityConfig extends WebSecurityConfigurerAdapter{
 					"/dragon/code/image",
 					"/dragon/code/sms",
 					"/dragon/user/register",
-					"/dragon/content/publish"
+					"/dragon/content/publish",
+					"/login.html"
 					/*"/dragon/user/register"*/).permitAll()
 					//授权		
 				.anyRequest()

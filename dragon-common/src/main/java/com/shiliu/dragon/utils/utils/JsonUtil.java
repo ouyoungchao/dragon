@@ -1,4 +1,4 @@
-package com.shiliu.dragon.untils.utils;
+package com.shiliu.dragon.utils.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;

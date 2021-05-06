@@ -1,4 +1,4 @@
-package com.shiliu.dragon.untils.cache;
+package com.shiliu.dragon.utils.cache;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,7 +9,7 @@ public class SessionCache {
     public SessionCache() {
     }
 
-    public static boolean addSession(String key, Object object) {
+   /* public static boolean addSession(String key, Object object) {
         if (key != null && !key.trim().isEmpty() && object != null) {
             sessionCache.put(key, object);
             return true;
@@ -32,5 +32,5 @@ public class SessionCache {
         } else {
             throw new IllegalArgumentException("seesion param error");
         }
-    }
+    }*/
 }

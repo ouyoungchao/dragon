@@ -10,14 +10,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shiliu.dragon.untils.cache.SessionCache;
+//import com.shiliu.dragon.utils.cache.SessionCache;
 import com.shiliu.dragon.security.properties.SmsCodeProperties;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -29,6 +32,7 @@ import com.shiliu.dragon.security.properties.SecurityProperties;
 /**
  * 短息验证码拦截器，校验短信
  */
+@Component
 public class SmsCodeFilter 
 				extends OncePerRequestFilter implements InitializingBean{
 	Logger logger = LoggerFactory.getLogger(getClass());
@@ -43,12 +47,16 @@ public class SmsCodeFilter
 
 	@Autowired
 	private ObjectMapper objectMap;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 	
 	//在其他属性设置完毕后，添加自己的拦截url
 	@Override
 	public void afterPropertiesSet() throws ServletException {
 		super.afterPropertiesSet();
 		urls.add(SmsCodeProperties.AUTHMOBILE);
+//		urls.add(SmsCodeProperties.USERREGISTER);
 	}
 
 	@Override
@@ -85,7 +93,7 @@ public class SmsCodeFilter
 			throw new ValidateCodeException("");
 		}
 		//系统生成值
-		ValidateCode codeInSession = (ValidateCode) SessionCache.getValueFromCache(mobile);
+		ValidateCode codeInSession = (ValidateCode) redisTemplate.opsForValue().get(mobile);
 		//请求参数值
 		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "smsCode");
 		//验证码为空
@@ -101,7 +109,6 @@ public class SmsCodeFilter
 		//验证码已经过期
 		if(codeInSession.isExpired()){
 			logger.warn("Sms is expired");
-			SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
 			throw new ValidateCodeException("");
 		}
 		//验证码不匹配
@@ -109,7 +116,7 @@ public class SmsCodeFilter
 			logger.warn("codeInSession =  {} and codeInRequest = {}",codeInSession.getCode(),codeInRequest);
 			throw new ValidateCodeException("");
 		}
-		SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
+		redisTemplate.delete(mobile);
 	}
 
 	public void setAuthenticationFailureHandler(
@@ -123,5 +130,21 @@ public class SmsCodeFilter
 
 	public void setSecurityProperties(SecurityProperties securityProperties) {
 		this.securityProperties = securityProperties;
+	}
+
+	public ObjectMapper getObjectMap() {
+		return objectMap;
+	}
+
+	public void setObjectMap(ObjectMapper objectMap) {
+		this.objectMap = objectMap;
+	}
+
+	public RedisTemplate getRedisTemplate() {
+		return redisTemplate;
+	}
+
+	public void setRedisTemplate(RedisTemplate redisTemplate) {
+		this.redisTemplate = redisTemplate;
 	}
 }

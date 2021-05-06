@@ -3,7 +3,7 @@ package com.shiliu.dragon.dao.content;
 import com.shiliu.dragon.model.content.Comments;
 import com.shiliu.dragon.model.content.Content;
 import com.shiliu.dragon.model.content.ContentQueryModel;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

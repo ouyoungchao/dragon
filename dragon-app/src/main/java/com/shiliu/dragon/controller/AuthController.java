@@ -5,13 +5,14 @@ import com.shiliu.dragon.model.Audit.AuditResponse;
 import com.shiliu.dragon.model.Audit.Audits;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.security.validate.code.AuthResponse;
-import com.shiliu.dragon.untils.AuthUtils;
-import com.shiliu.dragon.untils.PictureUtils;
-import com.shiliu.dragon.untils.cache.SessionCache;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.AuthUtils;
+import com.shiliu.dragon.utils.PictureUtils;
+import com.shiliu.dragon.utils.cache.SessionCache;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,11 +42,14 @@ public class AuthController {
     @Autowired
     private AuditDao auditDao;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @PostMapping("/logout")
     public String register(HttpServletRequest request) {
         logger.info("Begin to logout ");
         String userId = AuthUtils.getUserIdFromRequest(request);
-        SessionCache.removeFromCache(userId);
+        redisTemplate.delete(userId);
         logger.info("Success logout ");
         return JsonUtil.toJson(AuthResponse.LOGOUT_SUCCESS);
     }

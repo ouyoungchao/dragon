@@ -3,7 +3,7 @@ package com.shiliu.dragon.security;
 import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.code.AuthResponse;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,9 @@ import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MyUserDetailsService implements UserDetailsService,SocialUserDetailsService {
+public class DragonUserDetailsService implements UserDetailsService,SocialUserDetailsService {
 
-	private static Logger logger = LoggerFactory.getLogger(MyUserDetailsService.class);
+	private static Logger logger = LoggerFactory.getLogger(DragonUserDetailsService.class);
 
 	@Autowired
 	private UserDao userDao;

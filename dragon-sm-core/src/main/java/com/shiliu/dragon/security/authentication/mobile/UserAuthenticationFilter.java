@@ -1,7 +1,7 @@
 package com.shiliu.dragon.security.authentication.mobile;
 
 import com.shiliu.dragon.security.validate.code.AuthResponse;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,11 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.*;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.util.Assert;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-
+@Component
 public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFilter  {
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -32,7 +31,9 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
     private String usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
     private String passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
     private boolean postOnly = true;
-    private SessionAuthenticationStrategy sessionStrategy = new DragonSessionAuthenticationStrategy();
+
+    @Autowired
+    private SessionAuthenticationStrategy sessionStrategy;
 
     public UserAuthenticationFilter() {
         super(new AntPathRequestMatcher("/dragon/authentication/user", "POST"));
@@ -90,6 +91,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
         }
     }
 
+    @Autowired
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         super.setAuthenticationManager(authenticationManager);
     }

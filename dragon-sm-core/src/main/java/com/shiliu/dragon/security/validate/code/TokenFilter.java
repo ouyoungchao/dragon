@@ -1,17 +1,19 @@
 package com.shiliu.dragon.security.validate.code;
 
-import com.shiliu.dragon.untils.cache.SessionCache;
+import com.shiliu.dragon.utils.cache.SessionCache;
 import com.shiliu.dragon.security.properties.SecurityProperties;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -21,7 +23,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -31,6 +32,7 @@ import java.util.Set;
 /**
  * 短息验证码拦截器，校验短信
  */
+@Component
 public class TokenFilter
         extends OncePerRequestFilter implements InitializingBean {
     private static Logger logger = LoggerFactory.getLogger(TokenFilter.class);
@@ -53,6 +55,9 @@ public class TokenFilter
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     //在其他属性设置完毕后，添加自己的拦截url
     @Override
     public void afterPropertiesSet() throws ServletException {
@@ -65,6 +70,7 @@ public class TokenFilter
         freeAuthUrls.add("/dragon/authentication/mobile");
         freeAuthUrls.add("/dragon/authentication/user");
         freeAuthUrls.add("/dragon/code/sms");
+        freeAuthUrls.add("/login.html");
     }
 
     @Override
@@ -88,14 +94,14 @@ public class TokenFilter
             }
 			String token = getToken(request);
 			String id = new String(Base64.getDecoder().decode(token.getBytes(StandardCharsets.UTF_8)));
-            Object object = SessionCache.getValueFromCache(id);
+            Object object = redisTemplate.opsForValue().get(id);
             if(object == null){
                 myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
                 return;
             }
             Authentication authentication = (Authentication) object;
                     // TODO: 2021/4/6 更新后新增到缓存中
-            SessionCache.addSession(token, authentication);
+            redisTemplate.opsForValue().set(token, authentication);
             logger.debug("get authentication {}",authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);

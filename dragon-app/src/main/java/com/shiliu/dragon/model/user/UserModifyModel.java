@@ -1,7 +1,7 @@
 package com.shiliu.dragon.model.user;
 
-import com.shiliu.dragon.untils.UserInspector;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.UserInspector;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import com.shiliu.dragon.security.validate.code.ValidateCodeException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

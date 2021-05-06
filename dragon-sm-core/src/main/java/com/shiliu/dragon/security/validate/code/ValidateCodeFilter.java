@@ -9,12 +9,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.shiliu.dragon.untils.cache.SessionCache;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -26,6 +28,7 @@ import com.shiliu.dragon.security.properties.SecurityProperties;
 /**
  * 登陆接口验证码拦截器
  */
+@Component
 public class ValidateCodeFilter 
 				extends OncePerRequestFilter implements InitializingBean{
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,6 +41,9 @@ public class ValidateCodeFilter
 	private AntPathMatcher pathMatch = new AntPathMatcher();
 	
 	private SecurityProperties securityProperties;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 	
 	//在其他属性设置完毕后，添加自己的拦截url
 	@Override
@@ -57,7 +63,7 @@ public class ValidateCodeFilter
 	}
 
 	private void validate(ServletWebRequest request) throws ServletRequestBindingException {
-		ImageCode codeInSession = (ImageCode) SessionCache.getValueFromCache(ValidateCodeController.SESSION_KEY);
+		ImageCode codeInSession = (ImageCode) redisTemplate.opsForValue().get("SESSION_KEY_IMAGE_CODE");
 		//imageCode为login.html中的值
 		String codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(), "imageCode");
 		//判断验证码的逻辑
@@ -68,13 +74,13 @@ public class ValidateCodeFilter
 			throw new ValidateCodeException("验证码不存在");
 		}
 		if(codeInSession.isExpired()){
-			SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
+			redisTemplate.delete("SESSION_KEY_IMAGE_CODE");
 			throw new ValidateCodeException("验证码已经过期");
 		}
 		if(!StringUtils.equals(codeInSession.getCode(),codeInRequest)){
 			throw new ValidateCodeException("验证码不匹配");
 		}
-		SessionCache.removeFromCache(ValidateCodeController.SESSION_KEY);
+		redisTemplate.delete("SESSION_KEY_IMAGE_CODE");
 	}
 
 	public void setAuthenticationFailureHandler(

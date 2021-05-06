@@ -1,4 +1,4 @@
-package com.shiliu.dragon.untils;
+package com.shiliu.dragon.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

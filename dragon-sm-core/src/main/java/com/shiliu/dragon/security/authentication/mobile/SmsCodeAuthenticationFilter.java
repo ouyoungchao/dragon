@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -27,7 +28,9 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
 
     private String mobileParameter = MOBILE_KEY;
     private boolean postOnly = true;
-    private SessionAuthenticationStrategy sessionStrategy = new DragonSessionAuthenticationStrategy();
+
+    @Autowired
+    private SessionAuthenticationStrategy sessionStrategy;
 
     public SmsCodeAuthenticationFilter() {
         super(new AntPathRequestMatcher("/dragon/authentication/mobile", "POST"));

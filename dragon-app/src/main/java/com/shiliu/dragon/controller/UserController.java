@@ -2,9 +2,9 @@ package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.properties.NginxProperties;
-import com.shiliu.dragon.untils.AuthUtils;
-import com.shiliu.dragon.untils.UserInspector;
-import com.shiliu.dragon.untils.utils.JsonUtil;
+import com.shiliu.dragon.utils.AuthUtils;
+import com.shiliu.dragon.utils.UserInspector;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
@@ -14,6 +14,7 @@ import com.shiliu.dragon.security.validate.code.ValidateCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,9 @@ public class UserController {
     @Autowired
     private NginxProperties nginxProperties;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     //注册用户接口
     // TODO: 2021/4/16 lxh
 
@@ -50,7 +54,7 @@ public class UserController {
         logger.info("Begin register " + userContext);
         User user = JsonUtil.readValue(userContext, User.class);
         try {
-            UserInspector.validUser(user);
+            UserInspector.validUser(user,redisTemplate);
             setDefaultValue(user);
         } catch (ServletRequestBindingException e) {
             logger.error("Check smsCode ServletRequestBindingException ", e);
