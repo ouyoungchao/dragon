@@ -23,8 +23,16 @@ public class DragonSessionAuthenticationStrategy implements SessionAuthenticatio
 
     @Override
     public void onAuthentication(Authentication authentication, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws SessionAuthenticationException {
-        logger.debug("add seeion " + authentication);
+        logger.debug("add session " + authentication);
         SocialUser socialUser = (SocialUser) authentication.getPrincipal();
         redisTemplate.opsForValue().set(socialUser.getUserId(),authentication);
+    }
+
+    public RedisTemplate getRedisTemplate() {
+        return redisTemplate;
+    }
+
+    public void setRedisTemplate(RedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 }

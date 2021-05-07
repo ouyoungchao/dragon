@@ -2,6 +2,7 @@ package com.shiliu.dragon.security.authentication.mobile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,10 +24,13 @@ public class SmsCodeAuthenticationSecurityConfig extends SecurityConfigurerAdapt
 	
 	@Autowired
 	private UserDetailsService userDetailsService;
-	
+
+	@Autowired
+	private RedisTemplate redisTemplate;
+
+
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
-		
 		SmsCodeAuthenticationFilter smsCodeAuthenticationFilter = new SmsCodeAuthenticationFilter();
 		smsCodeAuthenticationFilter.setContinueChainBeforeSuccessfulAuthentication(true);
 		//设置AuthenticationManager
@@ -35,6 +39,7 @@ public class SmsCodeAuthenticationSecurityConfig extends SecurityConfigurerAdapt
 		smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(myAuthenticationSuccessHandler);
 		//设置失败处理
 		smsCodeAuthenticationFilter.setAuthenticationFailureHandler(myAuthenticationFailureHandler);
+		smsCodeAuthenticationFilter.setRedisTemplate(redisTemplate);
 		SmsCodeAuthenticationProvider smsCodeAuthenticationProvider = new SmsCodeAuthenticationProvider();
 		smsCodeAuthenticationProvider.setUserDetailsService(userDetailsService);
 

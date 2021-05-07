@@ -33,10 +33,14 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
     private boolean postOnly = true;
 
     @Autowired
-    private SessionAuthenticationStrategy sessionStrategy;
+    private DragonSessionAuthenticationStrategy sessionStrategy;
 
     public UserAuthenticationFilter() {
         super(new AntPathRequestMatcher("/dragon/authentication/user", "POST"));
+    }
+
+    public UserAuthenticationFilter(String url,String httpMethod) {
+        super(new AntPathRequestMatcher(url, httpMethod));
     }
 
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)

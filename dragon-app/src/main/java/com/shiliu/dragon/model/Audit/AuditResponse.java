@@ -1,11 +1,16 @@
 package com.shiliu.dragon.model.Audit;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
+
 /**
  * @author ouyangchao
  * @createTime
  * @description
  */
-public enum AuditResponse {
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+public enum AuditResponse implements Serializable {
 
     AUDIT_PARAM_ERROR("Audit param error",4000),
     UPLOADAUDITSUCCESS("Audit upload success",4001),
@@ -23,6 +28,19 @@ public enum AuditResponse {
     private String message;
     private int code;
 
+    public String getMessage() {
+        return message;
+    }
 
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 }

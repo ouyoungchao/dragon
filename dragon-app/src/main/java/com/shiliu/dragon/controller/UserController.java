@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,9 @@ public class UserController {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     //注册用户接口
     // TODO: 2021/4/16 lxh
@@ -77,6 +81,7 @@ public class UserController {
         if (user.getDescription() == null) {
             user.setDescription(User.DEFAULT_DESCRIPTION);
         }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
         user.setRegisterTime(System.currentTimeMillis());
     }
@@ -156,7 +161,7 @@ public class UserController {
         }
         userModifyModel.setId(AuthUtils.getUserIdFromRequest(request));
         try {
-            userModifyModel.isValidFilders();
+            userModifyModel.isValidFilders(passwordEncoder);
         } catch (ValidateCodeException e) {
             logger.error("ModifyUser with ValidateCodeException", e);
             return e.getMessage();

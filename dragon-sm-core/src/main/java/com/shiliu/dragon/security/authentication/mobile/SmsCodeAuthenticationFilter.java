@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -17,6 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
@@ -29,8 +33,8 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
     private String mobileParameter = MOBILE_KEY;
     private boolean postOnly = true;
 
-    @Autowired
-    private SessionAuthenticationStrategy sessionStrategy;
+    private DragonSessionAuthenticationStrategy sessionStrategy = new DragonSessionAuthenticationStrategy();
+
 
     public SmsCodeAuthenticationFilter() {
         super(new AntPathRequestMatcher("/dragon/authentication/mobile", "POST"));
@@ -82,6 +86,9 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
         }
     }
 
+    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
+        super.setAuthenticationManager(authenticationManager);
+    }
 
     /**
      * 获取手机号
@@ -94,18 +101,9 @@ public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessin
         authRequest.setDetails(authenticationDetailsSource.buildDetails(request));
     }
 
-    public void setMobileParameter(String usernameParameter) {
-        Assert.hasText(usernameParameter, "Username parameter must not be empty or null");
-        this.mobileParameter = usernameParameter;
-    }
-
-    public void setPostOnly(boolean postOnly) {
-        this.postOnly = postOnly;
-    }
-
-    public final String getMobileParameter() {
-        return mobileParameter;
-    }
+   public void setRedisTemplate(RedisTemplate redisTemplate){
+       sessionStrategy.setRedisTemplate(redisTemplate);
+   }
 
 }
 

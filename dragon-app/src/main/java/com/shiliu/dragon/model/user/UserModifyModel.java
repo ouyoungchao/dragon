@@ -6,6 +6,7 @@ import com.shiliu.dragon.security.validate.code.ValidateCodeException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class UserModifyModel implements Serializable {
 
     List<UserPair> modifyFilders = new ArrayList<UserPair>();
 
-    public boolean isValidFilders() throws ValidateCodeException {
+    public boolean isValidFilders(PasswordEncoder passwordEncoder) throws ValidateCodeException {
         if (!modifyFilders.isEmpty()) {
             for (int i = 0; i < modifyFilders.size(); i++) {
                 UserPair filder = modifyFilders.get(i);
@@ -34,6 +35,7 @@ public class UserModifyModel implements Serializable {
                 }
                 if (filder.getKey().toString().equalsIgnoreCase("password")) {
                     UserInspector.isValidPwd(filder.getValue().toString());
+                    filder.setValue(passwordEncoder.encode(filder.getValue().toString()));
                 }
                 if (filder.getKey().toString().equalsIgnoreCase("userName")) {
                     UserInspector.isvalidName(filder.getValue().toString());

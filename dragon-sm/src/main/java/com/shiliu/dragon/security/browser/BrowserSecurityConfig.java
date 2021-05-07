@@ -1,6 +1,5 @@
 package com.shiliu.dragon.security.browser;
 
-import com.shiliu.dragon.security.authentication.mobile.SmsCodeAuthenticationProvider;
 import com.shiliu.dragon.security.authentication.mobile.SmsCodeAuthenticationSecurityConfig;
 import com.shiliu.dragon.security.properties.SecurityProperties;
 import com.shiliu.dragon.security.validate.code.SmsCodeFilter;

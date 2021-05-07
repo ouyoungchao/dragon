@@ -27,9 +27,6 @@ public class DragonUserDetailsService implements UserDetailsService,SocialUserDe
 	@Autowired
 	private UserDao userDao;
 	
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	
 	//表单登录时，根据用户名查找用户信息
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
@@ -60,7 +57,8 @@ public class DragonUserDetailsService implements UserDetailsService,SocialUserDe
 		if(user == null){
 			throw new BadCredentialsException(JsonUtil.toJson(AuthResponse.USERNAME_NOT_EXIT));
 		}
-		String password = passwordEncoder.encode(user.getPassword());
+//		String password = passwordEncoder.encode(user.getPassword());
+		String password = user.getPassword();
 		//match匹配password和前台输入的密码
 		try {
 			SocialUser socialUser =  new SocialUser(user.getId(),password,
