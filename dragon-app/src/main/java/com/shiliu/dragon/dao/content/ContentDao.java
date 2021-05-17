@@ -1,8 +1,11 @@
 package com.shiliu.dragon.dao.content;
 
+import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.content.Comments;
 import com.shiliu.dragon.model.content.Content;
+import com.shiliu.dragon.model.content.ContentInfo;
 import com.shiliu.dragon.model.content.ContentQueryModel;
+import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +14,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,18 +38,23 @@ public class ContentDao {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private UserDao userDao;
+
     public void addContent(Content content){
         logger.info("{} begin add content",content.getUserId());
         jdbcTemplate.update(ADD_CONTENT,content.getId(),content.getUserId(),content.getMessage(), JsonUtil.toJson(content.getAnnex()),content.getPublishTime(),content.getRefrence(),content.getPermissions(),JsonUtil.toJson(content.getRefUsers()));
         logger.info("Add content success");
     }
 
-    public Content queryContentById(String id){
+    public ContentInfo queryContentById(String id){
         try {
             logger.info("Begin query content {}", id);
             Content content = jdbcTemplate.queryForObject(QUERY_CONTENT_BYID, new ContentRowMapper(), id);
+            User user = userDao.queryUserById(content.getUserId());
             logger.info("Success query content {}", id);
-            return content;
+            ContentInfo contentInfo = new ContentInfo(content,user);
+            return contentInfo;
         }catch (EmptyResultDataAccessException e){
             logger.error("Query content by id EmptyResultDataAccessException ");
             return null;
@@ -79,13 +88,18 @@ public class ContentDao {
 
     }
 
-    public List<Content> queryContentByCondition(ContentQueryModel contentQueryModel) {
+    public List<ContentInfo> queryContentByCondition(ContentQueryModel contentQueryModel) {
         logger.info("Begin conditionQuery {} ",contentQueryModel);
         String sql = QUERY_CONTENTS + contentQueryModel.getConditionSQL();
         try {
             List<Content> contents = jdbcTemplate.query(sql, new ContentRowMapper());
+            List<ContentInfo> contentInfos = new ArrayList<>();
+            for(Content content : contents){
+                User user = userDao.queryUserById(content.getUserId());
+                contentInfos.add(new ContentInfo(content,user));
+            }
             logger.info("Query contents success and size = {}",contents.size());
-            return contents;
+            return contentInfos;
         }catch (EmptyResultDataAccessException emptyResultDataAccessException){
             logger.warn("No condition contents");
             return Collections.EMPTY_LIST;

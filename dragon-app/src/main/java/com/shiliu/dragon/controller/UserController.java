@@ -1,16 +1,14 @@
 package com.shiliu.dragon.controller;
 
-import com.shiliu.dragon.model.user.UserResponse;
+import com.shiliu.dragon.dao.log.LoggerDao;
+import com.shiliu.dragon.model.user.*;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.utils.AuthUtils;
 import com.shiliu.dragon.utils.UserInspector;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import com.shiliu.dragon.dao.user.UserDao;
-import com.shiliu.dragon.model.user.User;
-import com.shiliu.dragon.model.user.UserModifyModel;
-import com.shiliu.dragon.model.user.UserQueryModel;
-import com.shiliu.dragon.security.validate.code.SmsResponse;
-import com.shiliu.dragon.security.validate.code.ValidateCodeException;
+import com.shiliu.dragon.security.validate.SmsResponse;
+import com.shiliu.dragon.security.validate.ValidateCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +38,9 @@ public class UserController {
 
     @Autowired
     private UserDao userDao;
+
+    @Autowired
+    private LoggerDao loggerDao;
 
     @Autowired
     private NginxProperties nginxProperties;
@@ -93,7 +94,6 @@ public class UserController {
             UserInspector.isValidUserId(id);
             User user = userDao.queryUserById(id);
             if (user != null) {
-                user.setExtendProperties(userDao.queryUserExtends(user.getId()));
                 UserResponse userResponse = UserResponse.QUERY_USER_SUCCESS;
                 userResponse.setMessage(user);
                 logger.info("Query user {} success", id);
@@ -123,9 +123,7 @@ public class UserController {
             logger.warn("Users meet the condition is empty");
             userResponse.setMessage(Collections.EMPTY_LIST);
         } else {
-            for (User user : users) {
-                user.setExtendProperties(userDao.queryUserExtends(user.getId()));
-            }
+
             userResponse.setMessage(users);
         }
         String result = JsonUtil.toJson(userResponse);
@@ -144,9 +142,7 @@ public class UserController {
             logger.warn("Users is empty");
             userResponse.setMessage(Collections.EMPTY_LIST);
         } else {
-            for (User user : users) {
-                user.setExtendProperties(userDao.queryUserExtends(user.getId()));
-            }
+
             userResponse.setMessage(users);
         }
         return JsonUtil.toJson(userResponse);
@@ -227,5 +223,21 @@ public class UserController {
             return JsonUtil.toJson(userResponse);
         }
 
+    }
+
+    @PostMapping("/hotUsers")
+    public String getPopularUser(HttpServletRequest request){
+        HotUserModule userQueryModel = new HotUserModule(request);
+        List<User> users = loggerDao.queryHotUser(userQueryModel);
+        UserResponse userResponse = UserResponse.QUERY_USER_SUCCESS;
+        if (users == null || users.isEmpty()) {
+            logger.warn("Users meet the condition is empty");
+            userResponse.setMessage(Collections.EMPTY_LIST);
+        } else {
+            userResponse.setMessage(users);
+        }
+        String result = JsonUtil.toJson(userResponse);
+        logger.info("result {} ", result);
+        return result;
     }
 }

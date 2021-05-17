@@ -2,7 +2,7 @@ package com.shiliu.dragon.security;
 
 import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.user.User;
-import com.shiliu.dragon.security.validate.code.AuthResponse;
+import com.shiliu.dragon.security.validate.AuthResponse;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.social.security.SocialUserDetailsService;

@@ -52,10 +52,6 @@ public class ContentRowMapper implements RowMapper<Content> {
             return null;
         }
         List<String> result = new ArrayList();
-        if(!value.contains(",")){
-            result.add(value);
-            return result;
-        }
         result = JsonUtil.readValue(value,List.class);
         return result;
     }

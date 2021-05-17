@@ -1,11 +1,9 @@
 package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.dao.content.ContentDao;
-import com.shiliu.dragon.model.content.Comments;
-import com.shiliu.dragon.model.content.Content;
-import com.shiliu.dragon.model.content.ContentQueryModel;
-import com.shiliu.dragon.model.content.ContentResponse;
+import com.shiliu.dragon.model.content.*;
 import com.shiliu.dragon.properties.NginxProperties;
+import com.shiliu.dragon.utils.AuthUtils;
 import com.shiliu.dragon.utils.ContentInspector;
 import com.shiliu.dragon.utils.PictureUtils;
 import com.shiliu.dragon.utils.utils.JsonUtil;
@@ -59,6 +57,8 @@ public class ContentController {
         if(content == null){
             content = new Content();
         }
+        String userId = AuthUtils.getUserIdFromRequest(request);
+        content.setUserId(userId);
         if (files != null && !files.isEmpty()) {
             content.setAnnex(PictureUtils.uploadPicture(files,nginxProperties.getContent(),nginxProperties.getContentUri()));
         }
@@ -71,7 +71,6 @@ public class ContentController {
         }
         logger.info("Publish content success");
         ContentResponse contentResponse = ContentResponse.PUBLISH_SUCCESS;
-        contentResponse.setId(content.getId());
         return JsonUtil.toJson(contentResponse);
     }
 
@@ -83,11 +82,10 @@ public class ContentController {
             return JsonUtil.toJson(ContentResponse.CONTENT_PARAM_ERROR);
         }
         try {
-            Content content = contentDao.queryContentById(id);
+            ContentInfo contentInfo = contentDao.queryContentById(id);
             ContentResponse contentResponse = ContentResponse.QUERYCONTENT_BYID_SUCCESS;
             if (contentResponse != null) {
-                contentResponse.setMessage(content);
-                contentResponse.setId(content.getId());
+                contentResponse.setMessage(contentInfo);
             }
             return JsonUtil.toJson(contentResponse);
         } catch (Exception e) {
@@ -106,9 +104,9 @@ public class ContentController {
             return JsonUtil.toJson(ContentResponse.CONTENT_QUERY_PARAMERROR);
         }
         try {
-            List<Content> contents = contentDao.queryContentByCondition(contentQueryModel);
+            List<ContentInfo> contentInfos = contentDao.queryContentByCondition(contentQueryModel);
             ContentResponse contentResponse = ContentResponse.CONTENT_QUERY_SUCCESS;
-            contentResponse.setMessage(contents);
+            contentResponse.setMessage(contentInfos);
             return JsonUtil.toJson(contentResponse);
         }catch (Exception e){
             logger.warn("Query contents error ",e);
@@ -133,7 +131,6 @@ public class ContentController {
             contentDao.addComments(comments);
             logger.info("Publish content success");
             ContentResponse contentResponse = ContentResponse.COMMENTS_SUCCESS;
-            contentResponse.setId(comments.getId());
             return JsonUtil.toJson(contentResponse);
         } catch (Exception exception) {
             logger.warn("Add comments failed ",exception);

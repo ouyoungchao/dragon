@@ -2,10 +2,8 @@ package com.shiliu.dragon.code;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.stereotype.Component;
-
-import com.shiliu.dragon.security.validate.code.ImageCode;
-import com.shiliu.dragon.security.validate.code.ValidateCodeGenerator;
+import com.shiliu.dragon.security.validate.ImageCode;
+import com.shiliu.dragon.security.validate.ValidateCodeGenerator;
 
 //@Component("imageCodeGenerator")
 public class DemoImageCodeGenerator implements ValidateCodeGenerator {

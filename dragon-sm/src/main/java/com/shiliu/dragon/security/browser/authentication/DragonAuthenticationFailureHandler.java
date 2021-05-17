@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import com.shiliu.dragon.security.properties.SecurityProperties;
-import com.shiliu.dragon.security.validate.code.AuthResponse;
+import com.shiliu.dragon.security.validate.AuthResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

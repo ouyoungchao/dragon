@@ -23,7 +23,7 @@ public class UserRowMapper implements RowMapper<User> {
         return sql2Model(resultSet);
     }
 
-    private User sql2Model(ResultSet resultSet){
+    public User sql2Model(ResultSet resultSet){
         if(resultSet == null){
             return null;
         }
@@ -35,7 +35,6 @@ public class UserRowMapper implements RowMapper<User> {
             user.setSex(resultSet.getByte("sex"));
             user.setUserName(resultSet.getString("username"));
             user.setMobile(resultSet.getString("mobile"));
-            user.setPassword(resultSet.getString("password"));
             user.setOrigin(resultSet.getString("origin"));
             user.setSchool(resultSet.getString("school"));
             user.setMajorIn(resultSet.getString("majorIn"));

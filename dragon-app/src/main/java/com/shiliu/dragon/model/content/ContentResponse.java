@@ -40,7 +40,6 @@ public enum ContentResponse {
 
     private int code;
     private Object message;
-    private String id;
 
     public int getCode() {
         return code;
@@ -56,13 +55,5 @@ public enum ContentResponse {
 
     public void setMessage(Object message) {
         this.message = message;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 }

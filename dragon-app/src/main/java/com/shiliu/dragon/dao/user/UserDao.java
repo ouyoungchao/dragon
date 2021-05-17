@@ -3,6 +3,7 @@ package com.shiliu.dragon.dao.user;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
 import com.shiliu.dragon.model.user.UserQueryModel;
+import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.properties.NginxProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class UserDao {
 
 
     @Autowired
-    JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private NginxProperties nginxProperties;
@@ -58,7 +59,7 @@ public class UserDao {
     public User queryUserByMobile(String mobile){
         try{
             logger.info("Begin query user {}",mobile);
-            User user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserRowMapper(),mobile);
+            User user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserDetailRowMapper(),mobile);
             logger.info("Query user {} success",user.getMobile());
             return user;
         }catch (EmptyResultDataAccessException e){
@@ -71,6 +72,9 @@ public class UserDao {
         try{
             logger.info("Begin query user {}",id);
             User user = jdbcTemplate.queryForObject(QUERY_USER_BYID, new UserRowMapper(),id);
+            if(user != null) {
+                user.setExtendProperties(queryUserExtends(user.getId()));
+            }
             logger.info("Query user {} success",id);
             return user;
         }catch (EmptyResultDataAccessException e){
@@ -83,6 +87,11 @@ public class UserDao {
         logger.info("Begin queryUsers offset {} limit {}",offset,limit);
         try{
             List<User> users = jdbcTemplate.query(QUERY_USER_PAGE,new UserRowMapper(),offset,limit);
+            if(users != null) {
+                for (User user : users) {
+                    user.setExtendProperties(queryUserExtends(user.getId()));
+                }
+            }
             logger.info("Query users success and size = {}",users.size());
             return users;
         }catch (EmptyResultDataAccessException e){
@@ -96,6 +105,11 @@ public class UserDao {
         try{
             String conditionSql = QUERY_USER_CONDITION + userQueryModel.condition2Sql();
             List<User> users = jdbcTemplate.query(conditionSql,new UserRowMapper());
+            if(users != null) {
+                for (User user : users) {
+                    user.setExtendProperties(queryUserExtends(user.getId()));
+                }
+            }
             logger.info("Condtion query users success and size = {}",users.size());
             return users;
         }catch (EmptyResultDataAccessException e){

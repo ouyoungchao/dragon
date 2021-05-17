@@ -1,16 +1,14 @@
 package com.shiliu.dragon.utils;
 
-import com.shiliu.dragon.utils.cache.SessionCache;
 import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.model.user.User;
-import com.shiliu.dragon.security.validate.code.SmsResponse;
-import com.shiliu.dragon.security.validate.code.ValidateCode;
-import com.shiliu.dragon.security.validate.code.ValidateCodeException;
+import com.shiliu.dragon.security.validate.SmsResponse;
+import com.shiliu.dragon.security.validate.ValidateCode;
+import com.shiliu.dragon.security.validate.ValidateCodeException;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.ServletRequestBindingException;
 
