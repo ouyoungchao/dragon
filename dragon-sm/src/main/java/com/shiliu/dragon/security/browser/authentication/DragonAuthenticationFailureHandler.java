@@ -45,7 +45,7 @@ public class DragonAuthenticationFailureHandler extends
         } else if (exception instanceof BadCredentialsException) {
             response.getWriter().write(exception.getMessage());
         } else if(request.getRequestURI().equalsIgnoreCase("/")){
-            response.sendRedirect("login.html");
+            response.sendRedirect("index.html");
         } else {
             //将authentication以json的形式输出到前端
             response.getWriter().write(JsonUtil.toJson(AuthResponse.AUTH_FAILED));

@@ -2,6 +2,7 @@ package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.dao.school.SchoolDao;
 import com.shiliu.dragon.model.school.School;
+import com.shiliu.dragon.model.school.SchoolModifyModel;
 import com.shiliu.dragon.model.school.SchoolResponse;
 import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.security.validate.ValidateCodeException;
@@ -33,7 +34,7 @@ public class SchoolController {
     private SchoolDao schoolDao;
 
     @PostMapping("/add")
-    public String addSchool(@RequestBody String schoolContext){
+    public String addSchool(@RequestBody String schoolContext) {
         logger.info("Begin add school " + schoolContext);
         School school = JsonUtil.readValue(schoolContext, School.class);
         try {
@@ -48,13 +49,13 @@ public class SchoolController {
             return JsonUtil.toJson(SchoolResponse.SCHOOL_ADD_EXIST);
         }
         schoolDao.addSchool(school);
-        logger.info("Add school {} success",school.getName());
+        logger.info("Add school {} success", school.getName());
         //注册用户
         return JsonUtil.toJson(SchoolResponse.SCHOOL_ADD_SUCCESS);
     }
 
     @PostMapping("query")
-    public String querySchools(HttpServletRequest request){
+    public String querySchools(HttpServletRequest request) {
         int offset = request.getParameter("offset") == null ? 0 : Integer.parseInt(request.getParameter("offset"));
         int limit = request.getParameter("pageSize") == null ? 10 : Integer.parseInt(request.getParameter("pageSize"));
         logger.info("Begin quesy user offset {} pageSize {}", offset, limit);
@@ -70,10 +71,10 @@ public class SchoolController {
     }
 
     @PostMapping("/{name}")
-    public String querySchoolByName(@PathVariable(name = "name") String name){
+    public String querySchoolByName(@PathVariable(name = "name") String name) {
         try {
             logger.info("begin query school " + name);
-            if(name.trim().isEmpty()){
+            if (name.trim().isEmpty()) {
                 return JsonUtil.toJson(SchoolResponse.QUERYSCHOOL_BYNAME_PARAMERROR);
             }
             School school = schoolDao.querySchoolByName(name);
@@ -89,6 +90,23 @@ public class SchoolController {
             return JsonUtil.toJson(SchoolResponse.QUERYSCHOOL_FAILED);
         }
 
+    }
+
+    @PostMapping("/modify")
+    public String modifySchool(@RequestBody String schoolInfo, HttpServletRequest request) {
+        logger.info("begin update school {}", schoolInfo);
+        SchoolModifyModel schoolModifyModel = JsonUtil.readValue(schoolInfo, SchoolModifyModel.class);
+        if (schoolModifyModel.getName() == null || schoolModifyModel.getModifyFilders().isEmpty()) {
+            return JsonUtil.toJson(SchoolResponse.UPDATE_PARAM_ERROR);
+        }
+        if (querySchoolByName(schoolModifyModel.getName()) == null) {
+            return JsonUtil.toJson(SchoolResponse.UPDATE_SCHOOL_NOT_EXIT);
+        }
+        boolean result = schoolDao.updateSchool(schoolModifyModel);
+        if (result) {
+            return JsonUtil.toJson(SchoolResponse.UPDATE_PARAM_SUCCESS);
+        }
+        return JsonUtil.toJson(SchoolResponse.UPDATE_PARAM_FAILED);
     }
 
     private void setDefaultValue(School school) {

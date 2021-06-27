@@ -9,7 +9,8 @@ public class DefaultSmsCodeSender implements SmsCodeSender {
 
 	protected static SmsCodeProperties smsCodeProperties = new SmsCodeProperties();
 
-	public void sendSmsCode(String mobile, String code) {
+	public boolean sendSmsCode(String mobile, String code) {
 		logger.info("Send {} to mobile {}",code,mobile);
+		return true;
 	}
 }

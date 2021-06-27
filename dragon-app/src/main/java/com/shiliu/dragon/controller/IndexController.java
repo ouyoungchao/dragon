@@ -16,6 +16,6 @@ public class IndexController {
 
     @RequestMapping("/")
     public String hello(){
-        return "forward:login.html";
+        return "forward:index.html";
     }
 }

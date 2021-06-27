@@ -1,6 +1,7 @@
 package com.shiliu.dragon.dao.school;
 
 import com.shiliu.dragon.model.school.School;
+import com.shiliu.dragon.model.school.SchoolModifyModel;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ public class SchoolDao {
     private static String QUERY_SCHOOL_BYID = "select * from school_info where name = ?";
     private static String QUERY_SCHOOL_PAGE = "select * from school_info limit ?,?";
     private static String ADD_SCHOOL = "insert into school_info(id,name, description, url, annex) values(?,?,?,?,?)";
+    private static String UPDATE_SCHOOL = "update school_info set ";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -55,6 +57,19 @@ public class SchoolDao {
         }catch (EmptyResultDataAccessException e){
             logger.error("Query schools with EmptyResultDataAccessException ",e);
             return null;
+        }
+    }
+
+    public boolean updateSchool(SchoolModifyModel schoolModifyModel) {
+        logger.info("Begin update school {}",schoolModifyModel);
+        try {
+            String updateSQL = UPDATE_SCHOOL + schoolModifyModel.model2Sql();
+            jdbcTemplate.update(updateSQL);
+            logger.info("Update school success");
+            return true;
+        }catch (Exception e){
+            logger.warn("Update school failed ",e);
+            return false;
         }
     }
 }

@@ -23,10 +23,14 @@ public class SmsCodeProperties {
 	private String url= "dysmsapi.aliyuncs.com";
 
 	//ak
-	private String accessKey = "accessKey";
+	private String accessKey = "LTAI5tMBFCLKbySahs2UtXxn";
 
 	//sk
-	private String accessKeySecret = "accessKeySecret";
+	private String accessKeySecret = "Mc1iS2le2UymLEbaPC8hAnzId1Ob8W";
+
+	private String signName = "太原隆玺科技";
+
+	private String templateParam = "SMS_218287437";
 	
 	public int getLength() {
 		return length;
@@ -61,5 +65,13 @@ public class SmsCodeProperties {
 
 	public void setAccessKeySecret(String accessKeySecret) {
 		this.accessKeySecret = accessKeySecret;
+	}
+
+	public String getSignName() {
+		return signName;
+	}
+
+	public String getTemplateParam() {
+		return templateParam;
 	}
 }

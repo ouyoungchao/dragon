@@ -21,6 +21,11 @@ public enum SchoolResponse {
     QUERYSCHOOL_PARAMERROR(5020,"Query param error"),
     QUERYSCHOOL_SUCCESS(5021,"Query school success"),
     QUERYSCHOOL_FAILED(5022,"Query school failed"),
+
+    UPDATE_PARAM_ERROR(5030,"Update school with param error"),
+    UPDATE_PARAM_SUCCESS(5031,"Update school success"),
+    UPDATE_PARAM_FAILED(5032,"Update school failed"),
+    UPDATE_SCHOOL_NOT_EXIT(5033,"Update school failed with school not exit"),
     ;
 
     SchoolResponse(int code, Object message) {

@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 /**
  * @author ouyangchao
  * @createTime
- * @description
+ * @description 操作日志拦截器，主要用于拦截请求，记录操作日志
  */
 @Component
 public class SecurityInterceptorImp implements SecurityInterceptor {

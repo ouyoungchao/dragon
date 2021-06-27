@@ -8,40 +8,50 @@ import com.aliyun.dysmsapi20170525.Client;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AliSmsCodeSender extends DefaultSmsCodeSender {
 
     Logger logger = LoggerFactory.getLogger(getClass());
 
+    private static Client smsClient;
+
     @Override
-    public void sendSmsCode(String mobile, String code) {
+    public boolean sendSmsCode(String mobile, String code) {
         logger.info("Begin send sms code to mobile " + mobile);
         super.sendSmsCode(mobile, code);
         SendSmsRequest sendSmsRequest = new SendSmsRequest();
         sendSmsRequest.setPhoneNumbers(mobile);
         //todo
-        sendSmsRequest.setTemplateCode("");
-        String  temp = String.format("短信验证码为：{}",code);
+        sendSmsRequest.setTemplateCode(smsCodeProperties.getTemplateParam());
+        sendSmsRequest.setSignName(smsCodeProperties.getSignName());
+        String  temp = String.format("{\"code\":\""+ code +"\"}");
         sendSmsRequest.setTemplateParam(temp);
         try {
             SendSmsResponse smsResponse = createClient().sendSms(sendSmsRequest);
            logger.info("Send sms code success " + new Gson().toJson(smsResponse.body));
+           return true;
         } catch (Exception e) {
             logger.error("Send sms code error ",e);
+            return false;
         }
 
 
     }
 
 
-    public static Client createClient() throws Exception {
-        Config config = new Config()
-                // 您的AccessKey ID
-                .setAccessKeyId(smsCodeProperties.getAccessKey())
-                // 您的AccessKey Secret
-                .setAccessKeySecret(smsCodeProperties.getAccessKeySecret());
-        // 访问的域名
-        config.endpoint = smsCodeProperties.getUrl();
-        return new Client(config);
+    public synchronized static Client createClient() throws Exception {
+        if(smsClient == null) {
+            Config config = new Config()
+                    // 您的AccessKey ID
+                    .setAccessKeyId(smsCodeProperties.getAccessKey())
+                    // 您的AccessKey Secret
+                    .setAccessKeySecret(smsCodeProperties.getAccessKeySecret());
+            // 访问的域名
+            config.endpoint = smsCodeProperties.getUrl();
+            smsClient = new Client(config);
+        }
+        return smsClient;
     }
 }

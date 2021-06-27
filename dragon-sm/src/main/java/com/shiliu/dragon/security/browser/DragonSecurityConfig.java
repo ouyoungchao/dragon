@@ -108,7 +108,7 @@ public class DragonSecurityConfig extends WebSecurityConfigurerAdapter{
 				//表单登录即认证
 			.formLogin()
 				//指定登录页面
-				.loginPage("/login.html")
+				.loginPage("/index.html")
 				//表单登录时UsernamePasswordAuthenticationFilter处理这个请求
 				.loginProcessingUrl("/dragon/authentication/user")
 				//表单登陆后使用定义的处理器
@@ -132,7 +132,9 @@ public class DragonSecurityConfig extends WebSecurityConfigurerAdapter{
 					"/dragon/code/sms",
 					"/dragon/user/register",
 					"/dragon/content/publish",
-					"/login.html"
+					"/login.html",
+					"/index.html",
+					"/pic/*"
 					/*"/dragon/user/register"*/).permitAll()
 					//授权		
 				.anyRequest()

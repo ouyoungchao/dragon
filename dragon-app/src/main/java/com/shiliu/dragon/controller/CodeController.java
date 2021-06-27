@@ -76,11 +76,14 @@ public class CodeController {
 		//生成验证码
 		ValidateCode smsCode = smsCodeGenerator.generate(request);
 		ServletWebRequest servletWebRequest  = new ServletWebRequest(request);
-		//保存到session中
-		logger.info("smscode = {} and moble = {} request = ",smsCode,mobile,servletWebRequest.hashCode());
-		redisTemplate.opsForValue().set(mobile,smsCode,3, TimeUnit.MINUTES);
-//		SessionCache.addSession(mobile, smsCode);
-		smsCodeSender.sendSmsCode(mobile, smsCode.getCode());
-		return JsonUtil.toJson(SmsResponse.SUCCESS);
+		String authenticMobile = mobile.substring(2);
+		if(smsCodeSender.sendSmsCode(authenticMobile, smsCode.getCode())) {
+			//保存到session中
+			logger.info("smscode = {} and moble = {} request = ",smsCode,mobile,servletWebRequest.hashCode());
+			redisTemplate.opsForValue().set(mobile,smsCode,3, TimeUnit.MINUTES);
+			return JsonUtil.toJson(SmsResponse.SUCCESS);
+		}else{
+			return JsonUtil.toJson(SmsResponse.FAILED);
+		}
 	}
 }

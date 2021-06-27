@@ -4,7 +4,7 @@ public class BrowserProperties {
 
 	private String signup = "/signup.html";
 	
-	private String login = "/login.html";
+	private String login = "/index.html";
 
 	private LoginType loginType = LoginType.JSON;
 	

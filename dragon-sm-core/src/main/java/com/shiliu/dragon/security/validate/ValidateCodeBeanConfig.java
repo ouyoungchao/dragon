@@ -1,5 +1,6 @@
 package com.shiliu.dragon.security.validate;
 
+import com.shiliu.dragon.security.validate.sms.AliSmsCodeSender;
 import com.shiliu.dragon.security.validate.sms.DefaultSmsCodeSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -25,6 +26,6 @@ public class ValidateCodeBeanConfig {
 	@Bean
 	@ConditionalOnMissingBean(name = "smsCodeSender")
 	public DefaultSmsCodeSender smsCodeSender(){
-		return new DefaultSmsCodeSender();
+		return new AliSmsCodeSender();
 	}
 }

@@ -71,6 +71,7 @@ public class TokenFilter
         freeAuthUrls.add("/dragon/authentication/user");
         freeAuthUrls.add("/dragon/code/sms");
         freeAuthUrls.add("/login.html");
+        freeAuthUrls.add("/index.html");
     }
 
     @Override
@@ -105,7 +106,7 @@ public class TokenFilter
             logger.debug("get authentication {}",authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);
-        }else if (!freeAuthUrls.contains(request.getRequestURI())){
+        }else if (!freeAuthUrls.contains(request.getRequestURI()) && !request.getRequestURI().startsWith("/pic")){
             logger.warn("The url {} no need auth",request.getRequestURI());
             myAuthenticationFailureHandler.onAuthenticationFailure(request, response, null);
             return;

@@ -25,6 +25,8 @@ public enum SmsResponse implements Serializable{
      */
     SUCCESS(1000,"Send sms success", SmsCodeProperties.EFFECTIVETIME),
 
+    FAILED(1007,"Send sms Fail"),
+
     SMSISEMPTY(1003,"Sms is empty"),
 
     SMSNOTEXIST(1004,"Sms not exist"),
