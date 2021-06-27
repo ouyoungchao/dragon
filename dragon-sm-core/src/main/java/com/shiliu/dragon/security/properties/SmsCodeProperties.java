@@ -1,5 +1,8 @@
 package com.shiliu.dragon.security.properties;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 public class SmsCodeProperties {
 
 	public static int EFFECTIVETIME = 3;
@@ -23,10 +26,10 @@ public class SmsCodeProperties {
 	private String url= "dysmsapi.aliyuncs.com";
 
 	//ak
-	private String accessKey = "LTAI5tMBFCLKbySahs2UtXxn";
+	private String accessKey = "TFRBSTV0TUJGQ0xLYnlTYWhzMlV0WHhu";
 
 	//sk
-	private String accessKeySecret = "Mc1iS2le2UymLEbaPC8hAnzId1Ob8W";
+	private String accessKeySecret = "TWMxaVMybGUyVXltTEViYVBDOGhBbnpJZDFPYjhX";
 
 	private String signName = "太原隆玺科技";
 
@@ -52,20 +55,14 @@ public class SmsCodeProperties {
 	}
 
 	public String getAccessKey() {
-		return accessKey;
+		return new String(Base64.getDecoder().decode(accessKey.getBytes(StandardCharsets.UTF_8)));
 	}
 
-	public void setAccessKey(String accessKey) {
-		this.accessKey = accessKey;
-	}
 
 	public String getAccessKeySecret() {
-		return accessKeySecret;
+		return new String(Base64.getDecoder().decode(accessKeySecret.getBytes(StandardCharsets.UTF_8)));
 	}
 
-	public void setAccessKeySecret(String accessKeySecret) {
-		this.accessKeySecret = accessKeySecret;
-	}
 
 	public String getSignName() {
 		return signName;
