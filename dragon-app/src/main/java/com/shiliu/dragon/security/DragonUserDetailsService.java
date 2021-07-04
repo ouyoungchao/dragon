@@ -56,7 +56,6 @@ public class DragonUserDetailsService implements UserDetailsService,SocialUserDe
 		if(user == null){
 			throw new BadCredentialsException(JsonUtil.toJson(AuthResponse.USERNAME_NOT_EXIT));
 		}
-//		String password = passwordEncoder.encode(user.getPassword());
 		String password = user.getPassword();
 		//match匹配password和前台输入的密码
 		try {

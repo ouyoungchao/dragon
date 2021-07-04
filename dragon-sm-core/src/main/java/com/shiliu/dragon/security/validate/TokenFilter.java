@@ -70,8 +70,11 @@ public class TokenFilter
         freeAuthUrls.add("/dragon/authentication/mobile");
         freeAuthUrls.add("/dragon/authentication/user");
         freeAuthUrls.add("/dragon/code/sms");
+        freeAuthUrls.add("/dragon/login/customer");
+        freeAuthUrls.add("/dragon/login/visitor");
         freeAuthUrls.add("/login.html");
         freeAuthUrls.add("/index.html");
+
     }
 
     @Override

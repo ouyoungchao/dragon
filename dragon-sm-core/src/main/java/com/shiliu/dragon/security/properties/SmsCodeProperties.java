@@ -8,14 +8,14 @@ public class SmsCodeProperties {
 	public static int EFFECTIVETIME = 3;
 
 	/**
-	 * 手机号登陆url
+	 * 忘记密码，手机号认证url
 	 */
 	public static String AUTHMOBILE = "/dragon/authentication/mobile";
 
 	/**
-	 * 注册用户url
+	 * 手机号登录url
 	 */
-	public static String USERREGISTER = "/dragon/user/register";
+	public static String LOGINMOBILE = "/dragon/login/customer";
 
 	private int length = 6;
 

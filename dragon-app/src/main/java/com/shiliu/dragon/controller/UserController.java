@@ -52,8 +52,6 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     //注册用户接口
-    // TODO: 2021/4/16 lxh
-
     @PostMapping("/register")
     public String register(@RequestBody String userContext) {
         logger.info("Begin register " + userContext);

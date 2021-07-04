@@ -55,7 +55,7 @@ public class SmsCodeFilter
 	public void afterPropertiesSet() throws ServletException {
 		super.afterPropertiesSet();
 		urls.add(SmsCodeProperties.AUTHMOBILE);
-//		urls.add(SmsCodeProperties.USERREGISTER);
+		urls.add(SmsCodeProperties.LOGINMOBILE);
 	}
 
 	@Override

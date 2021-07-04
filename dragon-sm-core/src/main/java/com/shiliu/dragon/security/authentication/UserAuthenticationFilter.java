@@ -1,5 +1,6 @@
 package com.shiliu.dragon.security.authentication;
 
+import com.shiliu.dragon.security.properties.UserProperties;
 import com.shiliu.dragon.security.validate.AuthResponse;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.apache.commons.lang.StringUtils;
@@ -48,8 +49,15 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
         if (postOnly && !request.getMethod().equals("POST")) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        String username = "";
+        String password = "";
+        if(response.getHeader(UserProperties.CUSTOMERTAG) != null){
+            username = UserProperties.VISITOR;
+            password = UserProperties.VISITOR;
+        }else{
+            username = obtainUsername(request);
+            password = obtainPassword(request);
+        }
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             throw new BadCredentialsException(JsonUtil.toJson(AuthResponse.USERNAME_PWD_ISEMPTY));
         }

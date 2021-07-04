@@ -18,6 +18,17 @@ public class User implements Serializable {
     public User() {
     }
 
+    public User(String mobile, String password, String repassword, String origin, String userName, String school, String majorIn, byte sex) {
+        this.mobile = mobile;
+        this.password = password;
+        this.repassword = repassword;
+        this.origin = origin;
+        this.userName = userName;
+        this.school = school;
+        this.majorIn = majorIn;
+        this.sex = sex;
+    }
+
     private String id;
 
     private String mobile;

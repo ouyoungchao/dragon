@@ -128,6 +128,8 @@ public class DragonSecurityConfig extends WebSecurityConfigurerAdapter{
 					securityProperties.getBrowser().getLogin(),
 					securityProperties.getBrowser().getSignup(),
 					//图形验证码授权
+					"/dragon/login/customer",
+					"/dragon/login/visitor",
 					"/dragon/code/image",
 					"/dragon/code/sms",
 					"/dragon/user/register",
