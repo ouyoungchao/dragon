@@ -89,6 +89,7 @@ public class LoginController {
         if (user != null) {
             response.addHeader(UserProperties.CUSTOMERTAG,"true");
             try {
+                logger.info("Visitor exist begin to login");
                 request.getRequestDispatcher("/dragon/authentication/user").forward(request,response);
             } catch (ServletException | IOException e) {
                 logger.error("Customer visistor error ",e);
@@ -97,6 +98,8 @@ public class LoginController {
             try {
                 user = generateUser(UserProperties.VISITOR,UserProperties.VISITOR);
                 userDao.addUser(user);
+                response.addHeader(UserProperties.CUSTOMERTAG,"true");
+                logger.info("Visitor added begin to login");
                 request.getRequestDispatcher("/dragon/authentication/user").forward(request,response);
             } catch (ServletException | IOException e) {
                 logger.error("Customer visistor error ",e);

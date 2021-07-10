@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.shiliu.dragon.utils.cache.SessionCache;
 import com.shiliu.dragon.security.properties.SmsCodeProperties;
+import com.shiliu.dragon.utils.mobile.MobileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +89,7 @@ public class SmsCodeFilter
 
 	public void validate(ServletWebRequest request) throws ServletRequestBindingException, IOException {
 		String mobile = ServletRequestUtils.getStringParameter(request.getRequest(), "mobile");
-		if(mobile == null || mobile.trim().length() != 13){
+		if(!MobileUtils.isValid(mobile)){
 			throw new ValidateCodeException("");
 		}
 		//系统生成值

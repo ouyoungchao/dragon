@@ -26,7 +26,7 @@ import java.util.UUID;
 /**
  * @author ouyangchao
  * @createTime
- * @description
+ * @description 认证控制器
  */
 
 @Transactional

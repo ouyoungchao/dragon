@@ -26,10 +26,10 @@ public class SmsCodeProperties {
 	private String url= "dysmsapi.aliyuncs.com";
 
 	//ak
-	private String accessKey = "TFRBSTV0TUJGQ0xLYnlTYWhzMlV0WHhu";
+	private String Ak = "TFRBSTV0NVlKdm5nU3paUWozZjluY1Ra";
 
 	//sk
-	private String accessKeySecret = "TWMxaVMybGUyVXltTEViYVBDOGhBbnpJZDFPYjhX";
+	private String Sk = "ajNwUUlrckx1TW5XMGJqSURtTTVLYmh5SktXcWY5";
 
 	private String signName = "太原隆玺科技";
 
@@ -54,13 +54,13 @@ public class SmsCodeProperties {
 		this.url = url;
 	}
 
-	public String getAccessKey() {
-		return new String(Base64.getDecoder().decode(accessKey.getBytes(StandardCharsets.UTF_8)));
+	public String getAk() {
+		return new String(Base64.getDecoder().decode(Ak.getBytes(StandardCharsets.UTF_8)));
 	}
 
 
-	public String getAccessKeySecret() {
-		return new String(Base64.getDecoder().decode(accessKeySecret.getBytes(StandardCharsets.UTF_8)));
+	public String getSk() {
+		return new String(Base64.getDecoder().decode(Sk.getBytes(StandardCharsets.UTF_8)));
 	}
 
 

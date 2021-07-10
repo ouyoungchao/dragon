@@ -23,9 +23,7 @@ import java.io.IOException;
 public class SmsCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
     Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final String MOBILE_KEY = "mobile";
-
-    private String mobileParameter = MOBILE_KEY;
+    private String mobileParameter = "mobile";
     private boolean postOnly = true;
 
     private DragonSessionAuthenticationStrategy sessionStrategy = new DragonSessionAuthenticationStrategy();

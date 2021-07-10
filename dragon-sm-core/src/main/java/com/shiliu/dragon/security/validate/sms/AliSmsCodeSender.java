@@ -45,9 +45,9 @@ public class AliSmsCodeSender extends DefaultSmsCodeSender {
         if(smsClient == null) {
             Config config = new Config()
                     // 您的AccessKey ID
-                    .setAccessKeyId(smsCodeProperties.getAccessKey())
+                    .setAccessKeyId(smsCodeProperties.getAk())
                     // 您的AccessKey Secret
-                    .setAccessKeySecret(smsCodeProperties.getAccessKeySecret());
+                    .setAccessKeySecret(smsCodeProperties.getSk());
             // 访问的域名
             config.endpoint = smsCodeProperties.getUrl();
             smsClient = new Client(config);

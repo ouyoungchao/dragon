@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 /**
  * @author ouyangchao
  * @createTime
- * @description
+ * @description 获取上传的认证信息，修改认证信息
  */
 @Repository
 public class AuditDao {
