@@ -74,12 +74,15 @@ class CommentRowMapping implements RowMapper<Comments>{
             comments.setId(resultSet.getString("id"));
             comments.setContentId(resultSet.getString("contentId"));
             comments.setUserId(resultSet.getString("userId"));
-            comments.setCommmentTime(resultSet.getLong("comment_time"));
+            comments.setCommmentTime(resultSet.getLong("comments_time"));
             comments.setMessage(resultSet.getString("message"));
-            comments.setStarts(resultSet.getInt("start"));
+            comments.setStarts(resultSet.getInt("starts"));
+            comments.setUserPortrait(resultSet.getString("user_portrait"));
+            comments.setUserName(resultSet.getString("user_name"));
         } catch (SQLException throwables) {
             logger.warn("Row to comments error ",throwables);
         }
         return comments;
     }
 }
+

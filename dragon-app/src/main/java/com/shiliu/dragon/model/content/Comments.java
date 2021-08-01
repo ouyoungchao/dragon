@@ -14,6 +14,8 @@ public class Comments implements Serializable {
     private String userId;
     private String message;
     private long commmentTime;
+    private String userName;
+    private String userPortrait;
     private int starts;
 
     public String getId() {
@@ -62,5 +64,21 @@ public class Comments implements Serializable {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getUserPortrait() {
+        return userPortrait;
+    }
+
+    public void setUserPortrait(String userPortrait) {
+        this.userPortrait = userPortrait;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

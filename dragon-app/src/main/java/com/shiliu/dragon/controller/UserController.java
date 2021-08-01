@@ -1,6 +1,9 @@
 package com.shiliu.dragon.controller;
 
+import com.shiliu.dragon.dao.fans.FansDao;
 import com.shiliu.dragon.dao.log.LoggerDao;
+import com.shiliu.dragon.model.exception.DragonException;
+import com.shiliu.dragon.model.fans.Fans;
 import com.shiliu.dragon.model.user.*;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.utils.AuthUtils;
@@ -43,6 +46,9 @@ public class UserController {
     private LoggerDao loggerDao;
 
     @Autowired
+    private FansDao fansDao;
+
+    @Autowired
     private NginxProperties nginxProperties;
 
     @Autowired
@@ -53,7 +59,7 @@ public class UserController {
 
     //注册用户接口
     @PostMapping("/register")
-    public String register(@RequestBody String userContext) {
+    public String register(@RequestBody String userContext) throws DragonException {
         logger.info("Begin register " + userContext);
         User user = JsonUtil.readValue(userContext, User.class);
         try {
@@ -92,8 +98,11 @@ public class UserController {
             UserInspector.isValidUserId(id);
             User user = userDao.queryUserById(id);
             if (user != null) {
+                List<Fans> fans = fansDao.queryFans(user.getId());
+                List<Fans> upers = fansDao.queryUper(user.getId());
+                UserInfo userInfo = new UserInfo(user,upers,fans);
                 UserResponse userResponse = UserResponse.QUERY_USER_SUCCESS;
-                userResponse.setMessage(user);
+                userResponse.setMessage(userInfo);
                 logger.info("Query user {} success", id);
                 return JsonUtil.toJson(userResponse);
             }
@@ -186,7 +195,7 @@ public class UserController {
         file.transferTo(localFile);
         value = nginxProperties.getPortraitUri() + localFile.getName();
         try {
-            userDao.updateUserPortrait(id, User.PORTRAITURI_NAME, value);
+            userDao.updateExtendProperties(id, User.PORTRAITURI_NAME, value);
         } catch (Exception e) {
             logger.warn("Update portrait failed ", e);
             return JsonUtil.toJson(UserResponse.MODIFY_PORTRAIT_FAILED);

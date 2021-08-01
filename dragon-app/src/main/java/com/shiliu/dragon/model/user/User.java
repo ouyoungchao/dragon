@@ -101,6 +101,11 @@ public class User implements Serializable {
         return userName;
     }
 
+
+    public String getPortrait(){
+        return (String)extendProperties.get(PORTRAITURI_NAME);
+    }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }

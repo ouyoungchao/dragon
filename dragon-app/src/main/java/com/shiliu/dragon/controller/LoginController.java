@@ -1,6 +1,7 @@
 package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.dao.user.UserDao;
+import com.shiliu.dragon.model.exception.DragonException;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.properties.UserProperties;
 import com.shiliu.dragon.security.validate.AuthResponse;
@@ -56,7 +57,7 @@ public class LoginController {
      * @return
      */
     @PostMapping("/customer")
-    public void customer(HttpServletRequest request, HttpServletResponse response) {
+    public void customer(HttpServletRequest request, HttpServletResponse response) throws DragonException {
         logger.info("Begin custormer login ");
         String mobile = request.getParameter(MOBILE);
         UserInspector.isValidMobile(mobile);
@@ -66,22 +67,24 @@ public class LoginController {
             try {
                 request.getRequestDispatcher("/dragon/authentication/mobile").forward(request,response);
             } catch (ServletException | IOException e) {
-                e.printStackTrace();
+                logger.error("Redirect error",e);
+                throw new DragonException(e.getMessage());
             }
         } else {
             try {
                 user = generateUser(mobile);
                 userDao.addUser(user);
                 request.getRequestDispatcher("/dragon/authentication/mobile").forward(request,response);
-            } catch (ServletException | IOException e) {
-                e.printStackTrace();
+            } catch (ServletException | IOException | DragonException e) {
+                logger.error("Add user or customer logger error",e);
+                throw new DragonException(e.getMessage());
             }
         }
         logger.info("Customer success login ");
     }
 
     @PostMapping("/visitor")
-    public void visistor(HttpServletRequest request, HttpServletResponse response) {
+    public void visistor(HttpServletRequest request, HttpServletResponse response) throws DragonException {
         //存在8600000000000的访客，则重定向到用户登录接口，不存在，则先注册，再重定向到登录接口
         logger.info("Begin visitor login ");
         User user = userDao.queryUserByMobile(UserProperties.VISITOR);

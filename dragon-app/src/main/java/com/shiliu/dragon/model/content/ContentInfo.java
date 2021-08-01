@@ -3,6 +3,7 @@ package com.shiliu.dragon.model.content;
 import com.shiliu.dragon.model.user.User;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author ouyangchao
@@ -10,15 +11,17 @@ import java.io.Serializable;
  * @description 帖子相关信息，包含帖子内容，发帖人信息，评论信息等
  */
 public class ContentInfo implements Serializable {
+
     private Content content;
 
     private User user;
 
-    private Comments comments;
+    private List<Comments> comments;
 
-    public ContentInfo(Content content, User user) {
+    public ContentInfo(Content content, User user, List<Comments> comments) {
         this.content = content;
         this.user = user;
+        this.comments = comments;
     }
 
     public Content getContent() {
@@ -37,11 +40,11 @@ public class ContentInfo implements Serializable {
         this.user = user;
     }
 
-    public Comments getComments() {
+    public List<Comments> getComments() {
         return comments;
     }
 
-    public void setComments(Comments comments) {
+    public void setComments(List<Comments> comments) {
         this.comments = comments;
     }
 }

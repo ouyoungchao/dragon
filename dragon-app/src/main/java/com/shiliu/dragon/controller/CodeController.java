@@ -69,8 +69,7 @@ public class CodeController {
         //生成验证码
         ValidateCode smsCode = smsCodeGenerator.generate(request);
         ServletWebRequest servletWebRequest = new ServletWebRequest(request);
-        String authenticMobile = mobile.substring(2);
-        if (smsCodeSender.sendSmsCode(authenticMobile, smsCode.getCode())) {
+        if (smsCodeSender.sendSmsCode(mobile, smsCode.getCode())) {
             //保存到session中
             logger.info("smscode = {} and moble = {} request = ", smsCode, mobile, servletWebRequest.hashCode());
             redisTemplate.opsForValue().set(mobile, smsCode, 3, TimeUnit.MINUTES);

@@ -1,5 +1,7 @@
 package com.shiliu.dragon.security.properties;
 
+import com.shiliu.dragon.utils.mobile.MobileUtils;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -31,9 +33,13 @@ public class SmsCodeProperties {
 	//sk
 	private String Sk = "ajNwUUlrckx1TW5XMGJqSURtTTVLYmh5SktXcWY5";
 
-	private String signName = "太原隆玺科技";
+	private String CHAINSIGNNAME = "太原隆玺科技";
 
-	private String templateParam = "SMS_218287437";
+	private String CHINATEMPLATEPARAM = "SMS_218287437";
+
+	private String OVERSEASSIGNNAME = "太原隆玺科技海外服务";
+
+	private String OVERSEASTEMPLATEPARAM = "SMS_219616343";
 	
 	public int getLength() {
 		return length;
@@ -64,11 +70,17 @@ public class SmsCodeProperties {
 	}
 
 
-	public String getSignName() {
-		return signName;
+	public String getSignName(String tel) {
+		if(MobileUtils.isChina(tel)) {
+			return CHAINSIGNNAME;
+		}
+		return OVERSEASSIGNNAME;
 	}
 
-	public String getTemplateParam() {
-		return templateParam;
+	public String getTemplateParam(String tel) {
+		if(MobileUtils.isChina(tel)) {
+			return CHINATEMPLATEPARAM;
+		}
+		return OVERSEASTEMPLATEPARAM;
 	}
 }

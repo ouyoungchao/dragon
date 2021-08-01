@@ -23,9 +23,8 @@ public class AliSmsCodeSender extends DefaultSmsCodeSender {
         super.sendSmsCode(mobile, code);
         SendSmsRequest sendSmsRequest = new SendSmsRequest();
         sendSmsRequest.setPhoneNumbers(mobile);
-        //todo
-        sendSmsRequest.setTemplateCode(smsCodeProperties.getTemplateParam());
-        sendSmsRequest.setSignName(smsCodeProperties.getSignName());
+        sendSmsRequest.setTemplateCode(smsCodeProperties.getTemplateParam(mobile));
+        sendSmsRequest.setSignName(smsCodeProperties.getSignName(mobile));
         String  temp = String.format("{\"code\":\""+ code +"\"}");
         sendSmsRequest.setTemplateParam(temp);
         try {

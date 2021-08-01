@@ -1,13 +1,14 @@
 package com.shiliu.dragon.dao.user;
 
+import com.shiliu.dragon.model.exception.DragonException;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
 import com.shiliu.dragon.model.user.UserQueryModel;
-import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.properties.NginxProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -38,7 +39,7 @@ public class UserDao {
 
     //查询头像信息
     private static String QUERY_PORTRAIT = "select * from user_extend_info where id = ? and name = ?";
-    //查询扩张熟悉
+    //查询扩展属性
     private static String QUERY_USER_EXTENDS = "select * from user_extend_info where id = ?";
 
 
@@ -48,135 +49,149 @@ public class UserDao {
     @Autowired
     private NginxProperties nginxProperties;
 
-    public void addUser(User user) {
+    public void addUser(User user) throws DragonException {
         logger.info("Begin add user {}" + user.getMobile());
-        jdbcTemplate.update(ADD_USER_SQL,user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(),user.getBirthday(),user.getMajorIn(),user.getSex(),user.getDescription(),user.getRegisterTime());
+        jdbcTemplate.update(ADD_USER_SQL, user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(), user.getBirthday(), user.getMajorIn(), user.getSex(), user.getDescription(), user.getRegisterTime());
         //设置用户默认头像信息
-        addUserPortrait(user.getId(),User.PORTRAITURI_NAME,nginxProperties.getPortraitUri()+User.PORTRAITURI_DEFAULT_VALUE);
-        logger.info("Add user {} success",user.getMobile());
+        addExtendProperties(user.getId(), User.PORTRAITURI_NAME, nginxProperties.getPortraitUri() + User.PORTRAITURI_DEFAULT_VALUE);
+        logger.info("Add user {} success", user.getMobile());
     }
 
-    public User queryUserByMobile(String mobile){
-        try{
-            logger.info("Begin query user {}",mobile);
-            User user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserDetailRowMapper(),mobile);
-            logger.info("Query user {} success",user.getMobile());
+    public User queryUserByMobile(String mobile) {
+        try {
+            logger.info("Begin query user {}", mobile);
+            User user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserDetailRowMapper(), mobile);
+            logger.info("Query user {} success", user.getMobile());
             return user;
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             logger.error("Query user by mobile EmptyResultDataAccessException ");
             return null;
         }
     }
 
     public User queryUserById(String id) {
-        try{
-            logger.info("Begin query user {}",id);
-            User user = jdbcTemplate.queryForObject(QUERY_USER_BYID, new UserRowMapper(),id);
-            if(user != null) {
+        try {
+            logger.info("Begin query user {}", id);
+            User user = jdbcTemplate.queryForObject(QUERY_USER_BYID, new UserRowMapper(), id);
+            if (user != null) {
                 user.setExtendProperties(queryUserExtends(user.getId()));
             }
-            logger.info("Query user {} success",id);
+            logger.info("Query user {} success", id);
             return user;
-        }catch (EmptyResultDataAccessException e){
+        } catch (EmptyResultDataAccessException e) {
             logger.error("Query user by id EmptyResultDataAccessException ");
             return null;
         }
     }
 
-    public List<User> queryUsers(int offset, int limit){
-        logger.info("Begin queryUsers offset {} limit {}",offset,limit);
-        try{
-            List<User> users = jdbcTemplate.query(QUERY_USER_PAGE,new UserRowMapper(),offset,limit);
-            if(users != null) {
+    public List<User> queryUsers(int offset, int limit) {
+        logger.info("Begin queryUsers offset {} limit {}", offset, limit);
+        try {
+            List<User> users = jdbcTemplate.query(QUERY_USER_PAGE, new UserRowMapper(), offset, limit);
+            if (users != null) {
                 for (User user : users) {
                     user.setExtendProperties(queryUserExtends(user.getId()));
                 }
             }
-            logger.info("Query users success and size = {}",users.size());
+            logger.info("Query users success and size = {}", users.size());
             return users;
-        }catch (EmptyResultDataAccessException e){
-            logger.error("Query users with EmptyResultDataAccessException ",e);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Query users with EmptyResultDataAccessException ", e);
             return null;
         }
     }
 
-    public List<User> conditionQuery(UserQueryModel userQueryModel){
+    public List<User> conditionQuery(UserQueryModel userQueryModel) {
         logger.info("Begin query and condition is " + userQueryModel.toString());
-        try{
+        try {
             String conditionSql = QUERY_USER_CONDITION + userQueryModel.condition2Sql();
-            List<User> users = jdbcTemplate.query(conditionSql,new UserRowMapper());
-            if(users != null) {
+            List<User> users = jdbcTemplate.query(conditionSql, new UserRowMapper());
+            if (users != null) {
                 for (User user : users) {
                     user.setExtendProperties(queryUserExtends(user.getId()));
                 }
             }
-            logger.info("Condtion query users success and size = {}",users.size());
+            logger.info("Condtion query users success and size = {}", users.size());
             return users;
-        }catch (EmptyResultDataAccessException e){
-            logger.error("Condition query users with EmptyResultDataAccessException ",e);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Condition query users with EmptyResultDataAccessException ", e);
             return null;
         }
     }
 
     /**
      * 修改用户信息接口
+     *
      * @param userModifyModel
      */
-    public void updateUser(UserModifyModel userModifyModel){
-        logger.info("Begin modify user {}",userModifyModel.toString());
-        String updateSQL =UPDATE_USER + userModifyModel.model2Sql();
+    public void updateUser(UserModifyModel userModifyModel) {
+        logger.info("Begin modify user {}", userModifyModel.toString());
+        String updateSQL = UPDATE_USER + userModifyModel.model2Sql();
         jdbcTemplate.update(updateSQL);
         logger.info("Update user success");
     }
 
     /**
-     * 设置头像信息
+     * 添加扩展属性
+     *
      * @param id
      * @param name
      * @param value
      */
-    public void addUserPortrait(String id,String name,String value){
-        logger.info("Begin to add user portrait");
-        jdbcTemplate.update(ADD_PORTRAIT,id,name,value);
-        logger.info("Add portrait success");
+    public void addExtendProperties(String id, String name, String value) throws DragonException {
+        logger.info("Begin to add user {}", name);
+        try {
+            jdbcTemplate.update(ADD_PORTRAIT, id, name, value);
+            logger.info("Add {} success", name);
+        } catch (DataAccessException accessException) {
+            logger.error("Update user extend properties success");
+            throw new DragonException("Add extend properties error");
+        }
     }
 
-    public void updateUserPortrait(String id,String name,String value){
-        logger.info("Begin to update user portrait");
-        jdbcTemplate.update(UPDATE_PORTAINT,value,id,name);
-        logger.info("Update portrait success");
+    public void updateExtendProperties(String id, String name, String value) throws DragonException {
+        logger.info("Begin to update user {}", name);
+        try {
+            jdbcTemplate.update(UPDATE_PORTAINT, value, id, name);
+            logger.info("Update {} success", name);
+        }catch (DataAccessException e){
+            logger.error("Update extend properties error",e);
+            throw new DragonException("Update user extend properties error");
+        }
     }
 
     /**
      * 查询头像信息
+     *
      * @param id
      * @param name
      */
-    public Map queryUserPortrait(String id, String name){
+    public Map queryUserPortrait(String id, String name) {
         logger.info("Begin query user portrait");
         try {
             Map map = jdbcTemplate.queryForObject(QUERY_PORTRAIT, new UserExtendRowMapper(), id, name);
             logger.info("Query portrait success");
             return map;
-        }catch (EmptyResultDataAccessException e){
-            logger.error("Condition query usersPortrait with EmptyResultDataAccessException ",e);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Condition query usersPortrait with EmptyResultDataAccessException ", e);
             return null;
         }
     }
 
     /**
      * 查询用户扩展信息
+     *
      * @param id
      * @return
      */
-    public Map queryUserExtends(String id){
+    public Map queryUserExtends(String id) {
         logger.info("Begin query user extends");
         try {
             Map map = jdbcTemplate.queryForObject(QUERY_USER_EXTENDS, new UserExtendRowMapper(), id);
             logger.info("Query user extends success");
             return map;
-        }catch (EmptyResultDataAccessException e){
-            logger.error("Query user extends with EmptyResultDataAccessException ",e);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Query user extends with EmptyResultDataAccessException ", e);
             return null;
         }
     }

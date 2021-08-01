@@ -31,6 +31,18 @@ public enum ContentResponse {
     CONTENT_QUERY_FAILED(3042,"Query contents failed"),
     CONTENT_QUERY_SUCCESS(3041,"Query contents success"),
 
+    STAR_PARAMERROR(3050,"Star params error"),
+    STAR_SUCCESS(3051,"Star success"),
+    STAR_CANCEL_SUCCESS(3052,"Cancel star success"),
+    STAR_CONTENTID_NOTEXIST(3053,"Star content not exist"),
+
+    COLLECT_PARAMERROR(3060,"Collect params error"),
+    COLLECT_SUCCESS(3061,"Collect success"),
+    COLLECT_CANCEL_SUCCESS(3062,"Cancel collect success"),
+    COLLECT_CONTENTID_NOTEXIST(3063,"Collect content not exist"),
+
+    QUERY_MYCOLLECTION_SUCCESS(3071,"Query my collections success"),
+    QUERY_MYCOLLECTION_EMPTY(3072,"My collection is empty"),
     ;
 
     ContentResponse(int code, String message) {

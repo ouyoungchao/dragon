@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
  * @description
  */
 public class MobileUtils {
+
+    public static final Pattern CHINA_MOBILE_COMPILE = Pattern.compile("^[8][6][1]\\d{10}$");
     private static final String CHINA = "86";
     private static final String UA = "44";
     public static final String MOBILE = "mobile";
@@ -18,6 +20,10 @@ public class MobileUtils {
         } else {
             return getMobileCalibrator(mobile).isValid();
         }
+    }
+
+    public static boolean isChina(String mobile){
+        return CHINA_MOBILE_COMPILE.matcher(mobile).matches();
     }
 
     private static MobileCalibrator getMobileCalibrator(String mobile) {
