@@ -78,6 +78,7 @@ public class FansController {
         String follow = AuthUtils.getUserIdFromRequest(request);
         Fans fans = new Fans(RandomUtils.getDefaultRandom(),userId,follow,System.currentTimeMillis());
         fansDao.deleteFans(fans);
+        deleteMessages(follow,userId,MessageTypes.FOLLOWER);
         return JsonUtil.toJson(FansResponse.FANS_CANCEL_FOLLOW_SUCCESS);
     }
 
@@ -107,6 +108,15 @@ public class FansController {
                 String id = RandomUtils.getDefaultRandom();
                 Messages messages = new Messages(id,userId,relatedUserName,relatedUserPortrait,relatedUserId,"","",productedTime,messageTypes);
                 messagesDao.addMessages(messages);
+            }
+        });
+    }
+
+    private void deleteMessages(String userId, String relatedUserId, MessageTypes messageTypes) {
+        executors.submit(new Runnable() {
+            @Override
+            public void run() {
+                messagesDao.deleteMessages(userId,relatedUserId,messageTypes);
             }
         });
     }

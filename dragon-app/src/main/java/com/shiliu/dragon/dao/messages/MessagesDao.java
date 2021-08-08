@@ -1,5 +1,6 @@
 package com.shiliu.dragon.dao.messages;
 
+import com.shiliu.dragon.model.messages.MessageTypes;
 import com.shiliu.dragon.model.messages.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +22,9 @@ public class MessagesDao {
     private static final Logger logger = LoggerFactory.getLogger(MessagesDao.class);
 
     private static final String SELECT_MESSAGES = "select * from user_messages where userId = ?";
-    private static final String DELETE_MESSAGES = "delete from user_messages where userId = ?";
+    private static final String DELETE_USER_MESSAGES = "delete from user_messages where userId = ?";
     private static final String ADD_MESSAGES = "insert into user_messages(id,userId,relatedUserId,relatedUserName,relatedUserPortrait,messageType,content,contentId,productTime) values (?,?,?,?,?,?,?,?,?)";
+    private static final String DELETED_MESSAGES = "delete from user_messages where userId = ? and relatedUserId = ? and messageType = ?";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -40,9 +42,9 @@ public class MessagesDao {
     public void deleteMessage(String userId) {
         logger.info("Begin to delete {} message", userId);
         try {
-            jdbcTemplate.update(DELETE_MESSAGES, userId);
+            jdbcTemplate.update(DELETE_USER_MESSAGES, userId);
         } catch (DataAccessException dataAccessException) {
-            logger.error("Delete messages error ", dataAccessException);
+            logger.error("Delete user messages error ", dataAccessException);
         }
     }
 
@@ -53,6 +55,15 @@ public class MessagesDao {
             logger.info("Add messages success");
         } catch (DataAccessException dataAccessException) {
             logger.warn("Insert messages error ", dataAccessException);
+        }
+    }
+
+    public void deleteMessages(String userId, String relatedUserId, MessageTypes messageTypes){
+        logger.info("Begin to delete {} {} {}message", userId,relatedUserId,messageTypes);
+        try {
+            jdbcTemplate.update(DELETE_USER_MESSAGES, userId,relatedUserId,messageTypes.toString());
+        } catch (DataAccessException dataAccessException) {
+            logger.error("Delete messages error ", dataAccessException);
         }
     }
 

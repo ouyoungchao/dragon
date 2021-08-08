@@ -113,6 +113,11 @@ public class ContentController {
         }
     }
 
+    /**
+     * 条件查询所有贴子
+     * @param request
+     * @return
+     */
     @PostMapping("/conditionQuery")
     public String queryContents(HttpServletRequest request) {
         ContentQueryModel contentQueryModel = null;
@@ -152,13 +157,23 @@ public class ContentController {
             logger.warn("Param is invalid");
             return JsonUtil.toJson(ContentResponse.COMMENTS_PARAM_ERROR);
         }
+        Object content;
+        if (!comments.isIsComment()) {
+            content = contentDao.queryContent(comments.getContentId());
+        } else {
+            content = contentDao.queryComment(comments.getContentId());
+        }
+        if (content == null) {
+            logger.error("content {} not exist ", comments.getContentId());
+            return JsonUtil.toJson(ContentResponse.COMMENTS_CONTENT_NOT_EXIST);
+        }
         User user = userDao.queryUserById(comments.getUserId());
-        setComentUserInfo(comments,user);
+        setComentUserInfo(comments, user);
         setDefaultValue(comments);
         try {
             contentDao.addComments(comments);
             logger.info("Publish content success");
-            addMessages(comments.getContentId(),comments.getUserId(),MessageTypes.COMMENT);
+            addMessages(comments.getContentId(), comments.getUserId(), MessageTypes.COMMENT);
             ContentResponse contentResponse = ContentResponse.COMMENTS_SUCCESS;
             return JsonUtil.toJson(contentResponse);
         } catch (Exception exception) {
@@ -197,6 +212,7 @@ public class ContentController {
 
     /**
      * 点赞
+     *
      * @param request
      * @return
      */
@@ -234,11 +250,13 @@ public class ContentController {
         }
         String userId = AuthUtils.getUserIdFromRequest(request);
         contentDao.cancelStar(userId, contentId);
+        deleteMessages(contentId, userId, MessageTypes.STAR);
         return JsonUtil.toJson(ContentResponse.STAR_CANCEL_SUCCESS);
     }
 
     /**
      * 收藏
+     *
      * @param request
      * @return
      * @throws DragonException
@@ -268,10 +286,9 @@ public class ContentController {
             logger.info("Collect success");
 
         }
-        addMessages(contentId,AuthUtils.getUserIdFromRequest(request),MessageTypes.COLLECT);
+        addMessages(contentId, AuthUtils.getUserIdFromRequest(request), MessageTypes.COLLECT);
         return JsonUtil.toJson(ContentResponse.COLLECT_SUCCESS);
     }
-
 
 
     @PostMapping("/cancelCollect")
@@ -292,6 +309,7 @@ public class ContentController {
             collections.remove(contentId);
             userDao.updateExtendProperties(userId, COLLECTIONS, JsonUtil.toJson(collections));
             logger.info("Collect update success");
+            deleteMessages(contentId, userId, MessageTypes.COLLECT);
         }
         return JsonUtil.toJson(ContentResponse.COLLECT_CANCEL_SUCCESS);
     }
@@ -326,24 +344,36 @@ public class ContentController {
     }
 
     /**
-     *
-     * @param contentId 点赞/评论/收藏者的内容的id
+     * @param contentId     点赞/评论/收藏者的内容的id
      * @param relatedUserId 点赞/评论/收藏者的id
      */
     private void addMessages(String contentId, String relatedUserId, MessageTypes messageTypes) {
         execute.submit(new Runnable() {
             @Override
             public void run() {
-               User user = userDao.queryUserById(relatedUserId);
-               String relatedUserName = user.getUserName();
-               String relatedUserPortrait = user.getPortrait();
-               Content content = contentDao.queryContent(contentId);
-               String userId = content.getUserId();
-               long productedTime = System.currentTimeMillis();
-               String message = content.getMessage();
-               String id = RandomUtils.getDefaultRandom();
-                Messages messages = new Messages(id,userId,relatedUserName,relatedUserPortrait,relatedUserId,message,contentId,productedTime,messageTypes);
+                User user = userDao.queryUserById(relatedUserId);
+                String relatedUserName = user.getUserName();
+                String relatedUserPortrait = user.getPortrait();
+                Content content = contentDao.queryContent(contentId);
+                String userId = content.getUserId();
+                long productedTime = System.currentTimeMillis();
+                String message = content.getMessage();
+                String id = RandomUtils.getDefaultRandom();
+                Messages messages = new Messages(id, userId, relatedUserName, relatedUserPortrait, relatedUserId, message, contentId, productedTime, messageTypes);
                 messagesDao.addMessages(messages);
+            }
+        });
+    }
+
+    private void deleteMessages(String cotentId, String relatedUserId, MessageTypes messageTypes) {
+        execute.submit(new Runnable() {
+            @Override
+            public void run() {
+                Content content = contentDao.queryContent(cotentId);
+                if (content != null) {
+                    String userId = content.getUserId();
+                    messagesDao.deleteMessages(userId, relatedUserId, messageTypes);
+                }
             }
         });
     }

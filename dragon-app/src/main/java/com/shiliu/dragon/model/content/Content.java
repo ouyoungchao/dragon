@@ -17,6 +17,8 @@ public class Content implements Serializable {
 
     private String message;
 
+    private String subject;
+
     /**
      * 附件
      */
@@ -115,5 +117,13 @@ public class Content implements Serializable {
 
     public void setComments(int comments) {
         this.comments = comments;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

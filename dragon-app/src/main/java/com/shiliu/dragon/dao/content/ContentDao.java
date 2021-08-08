@@ -15,7 +15,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -32,12 +31,14 @@ import java.util.List;
 @Repository
 public class ContentDao {
     private static final Logger logger = LoggerFactory.getLogger(ContentDao.class);
-    private static final String ADD_CONTENT = "insert into content_basic_info(id,userId,message,annex,publish_time,refrence,permissions,refUser) values(?,?,?,?,?,?,?,?)";
+    private static final String ADD_CONTENT = "insert into content_basic_info(id,userId,message,annex,publish_time,refrence,permissions,refUser,subject) values(?,?,?,?,?,?,?,?,?)";
     private static final String QUERY_CONTENT_BYID = "select * from content_basic_info where id = ?";
     //添加评论
     private static final String ADD_COMMENTS = "insert into content_comments(id,contentId,userId,message,comments_time,starts,user_name,user_portrait) values(?,?,?,?,?,?,?,?)";
     //查询帖子的所有评论
-    private static final String QUERY_COMMENTS_BYID = "select * from content_comments where contentId = ?";
+    private static final String QUERY_COMMENTS_BYCONTENTID = "select * from content_comments where contentId = ?";
+    private static final String QUERY_COMMENTS_BYCOMMMENTID = "select * from content_comments where id = ?";
+
     //查询帖子
     private static final String QUERY_CONTENTS = "select * from content_basic_info ";
     //查询点赞信息
@@ -60,7 +61,7 @@ public class ContentDao {
 
     public void addContent(Content content) {
         logger.info("{} begin add content", content.getUserId());
-        jdbcTemplate.update(ADD_CONTENT, content.getId(), content.getUserId(), content.getMessage(), JsonUtil.toJson(content.getAnnex()), content.getPublishTime(), content.getRefrence(), content.getPermissions(), JsonUtil.toJson(content.getRefUsers()));
+        jdbcTemplate.update(ADD_CONTENT, content.getId(), content.getUserId(), content.getMessage(), JsonUtil.toJson(content.getAnnex()), content.getPublishTime(), content.getRefrence(), content.getPermissions(), JsonUtil.toJson(content.getRefUsers()), content.getSubject());
         logger.info("Add content success");
     }
 
@@ -71,7 +72,7 @@ public class ContentDao {
             User user = userDao.queryUserById(content.getUserId());
             List<Comments> comments = queryContentAllComments(id);
             logger.info("Success query content {}", id);
-            ContentInfo contentInfo = new ContentInfo(content, user,comments);
+            ContentInfo contentInfo = new ContentInfo(content, user, comments);
             return contentInfo;
         } catch (EmptyResultDataAccessException e) {
             logger.error("Query content by id EmptyResultDataAccessException ");
@@ -97,7 +98,7 @@ public class ContentDao {
      */
     public void addComments(Comments comments) {
         logger.info("{} begin add content", comments.getUserId());
-        jdbcTemplate.update(ADD_COMMENTS, comments.getId(), comments.getContentId(), comments.getUserId(), comments.getMessage(), comments.getCommmentTime(), comments.getStarts(),comments.getUserName(),comments.getUserPortrait());
+        jdbcTemplate.update(ADD_COMMENTS, comments.getId(), comments.getContentId(), comments.getUserId(), comments.getMessage(), comments.getCommmentTime(), comments.getStarts(), comments.getUserName(), comments.getUserPortrait());
         logger.info("Add comments success");
     }
 
@@ -109,12 +110,75 @@ public class ContentDao {
     public List<Comments> queryContentAllComments(String contentId) {
         logger.info("Begin query {} all commments}", contentId);
         try {
-            List<Comments> comments = jdbcTemplate.query(QUERY_COMMENTS_BYID, new CommentRowMapping(), contentId);
+            List<Comments> comments = jdbcTemplate.query(QUERY_COMMENTS_BYCONTENTID, new CommentRowMapping(), contentId);
+            for (Comments cm : comments) {
+                queryCommentsDetail(cm);
+            }
             logger.info("Query all comments success and size = {}", comments.size());
             return comments;
         } catch (EmptyResultDataAccessException emptyResultDataAccessException) {
             logger.warn("No comments");
             return Collections.EMPTY_LIST;
+        }
+    }
+
+    /**
+     * 递归查询评论的所有回复
+     *
+     * @param comments
+     * @return
+     */
+    public Comments queryCommentsDetail(Comments comments) {
+        logger.info("Begin query comment details {} ", comments);
+        //查询2级评论
+        List<Comments> commentsList = queryCommentAllComments(comments.getId());
+        if (commentsList.isEmpty()) {
+            return comments;
+        } else {
+            comments.setComments(commentsList);
+            for (Comments cm : commentsList) {
+                //查询n级评论
+                queryCommentsDetail(cm);
+            }
+        }
+        return comments;
+    }
+
+    /**
+     * 查询评论的回复
+     *
+     * @param contentId
+     * @return
+     */
+    private List<Comments> queryCommentAllComments(String contentId) {
+        logger.info("Begin query comment {} all commments}", contentId);
+        try {
+            //获取1级评论
+            List<Comments> comments = jdbcTemplate.query(QUERY_COMMENTS_BYCONTENTID, new CommentRowMapping(), contentId);
+            logger.info("Query all comments success and size = {}", comments.size());
+            return comments;
+        } catch (EmptyResultDataAccessException emptyResultDataAccessException) {
+            logger.warn("No comments");
+            return Collections.EMPTY_LIST;
+        }
+    }
+
+
+    /**
+     * 查询当条评论,不包含对评论的回复
+     *
+     * @param commentId
+     * @return
+     */
+    public Comments queryComment(String commentId) {
+        logger.info("Begin query {}", commentId);
+        try {
+            Comments comments = jdbcTemplate.queryForObject(QUERY_COMMENTS_BYCOMMMENTID, new CommentRowMapping(), commentId);
+            logger.info("Query all comments success", comments);
+            return comments;
+        } catch (EmptyResultDataAccessException emptyResultDataAccessException) {
+            logger.warn("Comment {} not exist", commentId);
+            return null;
         }
     }
 
@@ -127,7 +191,7 @@ public class ContentDao {
             for (Content content : contents) {
                 User user = userDao.queryUserById(content.getUserId());
                 List<Comments> comments = queryContentAllComments(content.getId());
-                contentInfos.add(new ContentInfo(content, user,comments));
+                contentInfos.add(new ContentInfo(content, user, comments));
             }
             logger.info("Query contents success and size = {}", contents.size());
             return contentInfos;
@@ -136,6 +200,7 @@ public class ContentDao {
             return Collections.EMPTY_LIST;
         }
     }
+
 
     /**
      * 点赞接口

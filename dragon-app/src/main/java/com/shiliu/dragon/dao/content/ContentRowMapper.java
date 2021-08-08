@@ -41,6 +41,7 @@ public class ContentRowMapper implements RowMapper<Content> {
             content.setComments(resultSet.getInt("comments"));
             content.setStarts(resultSet.getInt("starts"));
             content.setPermissions(resultSet.getString("permissions"));
+            content.setSubject(resultSet.getString("subject"));
         } catch (SQLException throwables) {
             logger.warn("Set value error ",throwables);
         }

@@ -22,6 +22,7 @@ public enum ContentResponse {
     COMMENTS_PARAM_ERROR(3020,"Comments param error"),
     COMMENTS_SUCCESS(3021,"Comments publish success"),
     COMMENTS_FAILED(3022,"Comments failed"),
+    COMMENTS_CONTENT_NOT_EXIST(3023,"Comments not exit"),
 
     COMMENTS_QUERYPARAM_ERROR(3030,"Comments query param error"),
     COMMENTS_QUERYPARAM_SUCCESS(3031,"Comments query success"),

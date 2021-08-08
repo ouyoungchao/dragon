@@ -1,6 +1,7 @@
 package com.shiliu.dragon.model.content;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author ouyangchao
@@ -17,6 +18,8 @@ public class Comments implements Serializable {
     private String userName;
     private String userPortrait;
     private int starts;
+    private List<Comments> comments;
+    private boolean isComment;
 
     public String getId() {
         return id;
@@ -81,4 +84,22 @@ public class Comments implements Serializable {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    public List<Comments> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comments> comments) {
+        this.comments = comments;
+    }
+
+    public boolean isIsComment() {
+        return isComment;
+    }
+
+    public void setIsComment(boolean comment) {
+        isComment = comment;
+    }
+
+
 }
