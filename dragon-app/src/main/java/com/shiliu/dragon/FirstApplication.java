@@ -1,5 +1,6 @@
 package com.shiliu.dragon;
 
+import com.shiliu.dragon.model.Audit.AuditStatus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;

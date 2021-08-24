@@ -2,12 +2,14 @@ package com.shiliu.dragon.dao.audit;
 
 import com.shiliu.dragon.model.Audit.AuditStatus;
 import com.shiliu.dragon.model.Audit.Audits;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author ouyangchao
@@ -35,8 +37,9 @@ public class AuditRowMapping implements RowMapper<Audits> {
             audits.setStatus(AuditStatus.valueOf(resultSet.getString("status")));
             audits.setUserId(resultSet.getString("userId"));
             audits.setManagerId(resultSet.getString("managerId"));
-            audits.setMeterials(resultSet.getString("meterials"));
+            audits.setMeterials(JsonUtil.readValue(resultSet.getString("meterials"), List.class));
             audits.setPostData(resultSet.getLong("postData"));
+            audits.setSchool(resultSet.getString("school"));
         } catch (SQLException throwables) {
             logger.warn("Row to AUdit error ",throwables);
         }

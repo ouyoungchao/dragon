@@ -1,6 +1,7 @@
 package com.shiliu.dragon.dao.audit;
 
 import com.shiliu.dragon.model.Audit.Audits;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +21,15 @@ import java.util.List;
 public class AuditDao {
     private static final Logger logger = LoggerFactory.getLogger(AuditDao.class);
 
-    private static final String ADDAUDIT = "insert into user_audit_info(id,userId,meterials,status,postData,auditData,managerId,isManager) values(?,?,?,?,?,?,?,?)";
+    private static final String ADDAUDIT = "insert into user_audit_info(id,userId,meterials,status,postData,auditData,managerId,isManager,school) values(?,?,?,?,?,?,?,?,?)";
 
-    private static final String QUEY_AUDIT_BYID = "select * from user_audit_info where is = ?";
+    private static final String QUEY_AUDIT_BYID = "select * from user_audit_info where id = ?";
 
     private static final String QUEY_AUDIT_BYMANAGER = "select * from user_audit_info where managerId = ?";
 
     private static final String QUEY_AUDIT_BYUSER = "select * from user_audit_info where userId = ?";
 
-    private static final String UPDATE_AUDIT_STATUS = "update user_audit_info set status = ? where id = ?";
+    private static final String UPDATE_AUDIT_STATUS = "update user_audit_info set status = ?  and auditData = ? where id = ?";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -36,7 +37,7 @@ public class AuditDao {
 
     public void addAudit(Audits audits) {
         logger.info("Begin add audit {} ", audits);
-        jdbcTemplate.update(ADDAUDIT, audits.getId(), audits.getUserId(), audits.getMeterials(), audits.getStatus().toString(), audits.getPostData(), audits.getAuditData(), audits.getManagerId(), audits.getIsManager() ? 1 : 0);
+        jdbcTemplate.update(ADDAUDIT, audits.getId(), audits.getUserId(), JsonUtil.toJson(audits.getMeterials()), audits.getStatus().toString(), audits.getPostData(), audits.getAuditData(), audits.getManagerId(), audits.getIsManager() ? 1 : 0,audits.getSchool());
         logger.info("Add audit success");
     }
 
@@ -87,7 +88,7 @@ public class AuditDao {
     public void updateExamineStatus(Audits audits) {
         logger.info("Begin to updata audit {} status {}",audits.getId(),audits.getStatus());
         try {
-            jdbcTemplate.update(UPDATE_AUDIT_STATUS,audits.getStatus().toString(),audits.getId());
+            jdbcTemplate.update(UPDATE_AUDIT_STATUS,audits.getStatus().toString(),System.currentTimeMillis(),audits.getId());
         }catch (DataAccessException exception){
             logger.error("Updata status error ",exception);
         }

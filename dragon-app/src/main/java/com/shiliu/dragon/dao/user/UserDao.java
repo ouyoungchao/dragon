@@ -150,7 +150,7 @@ public class UserDao {
      * @throws DragonException
      */
     public boolean addExtendProperties(User user) {
-        logger.info("Begin to add user properties {}", user.getUserName());
+        logger.info("Begin to add user properties {}", user.getId());
         try {
             if (user.getExtendProperties().isEmpty()) {
                 return true;
@@ -161,15 +161,16 @@ public class UserDao {
                     Map.Entry entry = iterator.next();
                     String key = (String) entry.getKey();
                     String value = JsonUtil.toJson(entry.getValue());
-                    addExtendSQL += "()" + user.getId() + "," + key + "," + value + "),";
+                    addExtendSQL += "(\''" + user.getId() + "\',\'" + key + "\'," + value + "),";
                 }
                 addExtendSQL = addExtendSQL.substring(0, addExtendSQL.length() - 1);
+                logger.info("add extend info "+addExtendSQL);
                 jdbcTemplate.update(addExtendSQL);
             }
             logger.info("Add {} success", user.getUserName());
             return true;
         } catch (DataAccessException accessException) {
-            logger.error("Update user extend properties success");
+            logger.error("Update user extend properties error",accessException);
             return false;
         }
     }

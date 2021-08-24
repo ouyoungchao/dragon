@@ -1,5 +1,7 @@
 package com.shiliu.dragon.model.Audit;
 
+import java.util.List;
+
 /**
  * @author ouyangchao
  * @createTime
@@ -9,7 +11,7 @@ public class Audits {
 
     private String id;
     private String userId;
-    private String meterials;
+    private List<String> meterials;
     private AuditStatus status;
     private long postData;
     private long auditData;
@@ -20,7 +22,7 @@ public class Audits {
     public Audits() {
     }
 
-    public Audits(String userId, String meterials, AuditStatus status, long postData, long auditData, String managerId, boolean isManager, String school) {
+    public Audits(String userId, List<String> meterials, AuditStatus status, long postData, long auditData, String managerId, boolean isManager, String school) {
         this.userId = userId;
         this.meterials = meterials;
         this.status = status;
@@ -47,12 +49,20 @@ public class Audits {
         this.userId = userId;
     }
 
-    public String getMeterials() {
+    public List<String> getMeterials() {
         return meterials;
     }
 
-    public void setMeterials(String meterials) {
+    public void setMeterials(List<String> meterials) {
         this.meterials = meterials;
+    }
+
+    public boolean isManager() {
+        return isManager;
+    }
+
+    public void setManager(boolean manager) {
+        isManager = manager;
     }
 
     public AuditStatus getStatus() {

@@ -36,7 +36,7 @@ public class PictureUtils {
                 localFile.createNewFile();
                 //将传输内容进行转换
                 picture.transferTo(localFile);
-                String url = uriPath+ localFile.getName();
+                String url = uriPath+localFile.getName();
                 picutures.add(url);
             } catch (IOException e) {
                 logger.warn("Upload picture to ngnix failed ", e);

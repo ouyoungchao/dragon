@@ -80,8 +80,10 @@ public class AuthController {
     public String examineAuth(HttpServletRequest request) {
         logger.info("Begin auth");
         String id = request.getParameter("taskId");
-        if (StringUtils.isEmpty(id) || AuditStatus.valueOf(request.getParameter("status")) == null) {
-            logger.error("Auth id is empty");
+        String status = request.getParameter("status");
+
+        if (StringUtils.isEmpty(id) || status == null || AuditStatus.valueOf(status.toUpperCase()) == null) {
+            logger.error("Auth id is empty {} {}",id,status);
             return JsonUtil.toJson(AuditResponse.EXAMINE_PARAM_ERROR);
         }
         Audits audits = auditDao.queryAuditInfoById(id);
@@ -89,10 +91,12 @@ public class AuthController {
             logger.error("Auth not exist");
             return JsonUtil.toJson(AuditResponse.EXAMINE_PARAM_ERROR);
         }
-        AuditStatus status = AuditStatus.valueOf(request.getParameter("status"));
-        audits.setStatus(status);
+        audits.setStatus(AuditStatus.valueOf(status.toUpperCase()));
         auditDao.updateExamineStatus(audits);
         logger.info("Examine finish and status is {}", status);
+        if(status.equals(AuditStatus.REJECT)){
+            return JsonUtil.toJson(AuditResponse.EXAMINE_FINISH);
+        }
         if(audits.getIsManager()){
             User user = new User();
             user.setId(AuthUtils.getUserIdFromRequest(request));
@@ -126,12 +130,12 @@ public class AuthController {
             return JsonUtil.toJson(AuditResponse.AUDIT_PARAM_ERROR);
         }
         //上传认证材料
-        List<String> meterials = PictureUtils.uploadPicture(files, nginxProperties.getAudit(), nginxProperties.getContentUri());
+        List<String> meterials = PictureUtils.uploadPicture(files, nginxProperties.getAudit(), nginxProperties.getAuditUr());
         String managerId = school;
         if (isManager) {
             managerId = "admin";
         }
-        Audits audits = new Audits(userId, JsonUtil.toJson(meterials), AuditStatus.WAITING_EXAMINE, System.currentTimeMillis(), 0l, managerId, isManager, school);
+        Audits audits = new Audits(userId, meterials, AuditStatus.WAITING_EXAMINE, System.currentTimeMillis(), 0l, managerId, isManager, school);
         setDefaultValue(audits);
         try {
             auditDao.addAudit(audits);

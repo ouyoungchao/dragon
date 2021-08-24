@@ -8,5 +8,6 @@ package com.shiliu.dragon.model.Audit;
 public enum AuditStatus {
     WAITING_EXAMINE,
     REJECT,
-    APROVE;
+    APPROVE,
+    ;
 }
