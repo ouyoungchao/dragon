@@ -18,6 +18,12 @@ public enum AuditResponse implements Serializable {
     WAITING_AUDIT("Waiting manager audit",4003),
     AUDIT_FAILED("Audit failed",4004),
     AUDIT_SUCCESS("Audit success",4005),
+
+    EXAMINE_PARAM_ERROR("Examine param error",4010),
+    EXAMINE_FINISH("Examine Finish",4011),
+
+    QUERY_EXAMINE_TASK_SUCCESS("Query examine task success",4021),
+
     ;
 
     AuditResponse(String message, int code) {
@@ -25,14 +31,14 @@ public enum AuditResponse implements Serializable {
         this.code = code;
     }
 
-    private String message;
+    private Object message;
     private int code;
 
-    public String getMessage() {
+    public Object getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(Object message) {
         this.message = message;
     }
 

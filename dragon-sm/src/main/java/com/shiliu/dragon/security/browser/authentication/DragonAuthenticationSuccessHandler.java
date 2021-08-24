@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.shiliu.dragon.security.authentication.DragonSocialUser;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import com.shiliu.dragon.security.validate.AuthResponse;
 import org.slf4j.Logger;
@@ -28,21 +29,28 @@ public class DragonAuthenticationSuccessHandler extends
                                         HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         logger.info("登录成功，开始授权");
-        if (response !=null) {
+        if (response != null) {
             //如果为json格式，则返回json数据，如果不是则跳转
             response.setContentType("application/json;charset=UTF-8");
             //将authentication以json的形式输出到前端
             AuthResponse authResponse = AuthResponse.AUTH_SUCCESS;
             authResponse.setMessage(authentication);
             authResponse.setTokenId(generateToken(authentication));
+            authResponse.setRoleInfo(generateRoleInfo(authentication));
             response.getWriter().write(JsonUtil.toJson(authResponse));
         }
-        }
+    }
 
-        private String generateToken(Authentication authentication){
-            SocialUser socialUser = (SocialUser) authentication.getPrincipal();
-            String id = socialUser.getUserId();
-            return new String(Base64.getEncoder().encode(id.getBytes(StandardCharsets.UTF_8)));
+    private Object generateRoleInfo(Authentication authentication) {
+        DragonSocialUser socialUser = (DragonSocialUser) authentication.getPrincipal();
+        return socialUser.getRoleInfo();
 
-        }
+    }
+
+    private String generateToken(Authentication authentication) {
+        SocialUser socialUser = (SocialUser) authentication.getPrincipal();
+        String id = socialUser.getUserId();
+        return new String(Base64.getEncoder().encode(id.getBytes(StandardCharsets.UTF_8)));
+
+    }
 }

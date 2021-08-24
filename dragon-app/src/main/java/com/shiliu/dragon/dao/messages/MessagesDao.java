@@ -1,6 +1,6 @@
 package com.shiliu.dragon.dao.messages;
 
-import com.shiliu.dragon.model.messages.MessageTypes;
+import com.shiliu.dragon.model.common.EventsType;
 import com.shiliu.dragon.model.messages.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,10 +58,10 @@ public class MessagesDao {
         }
     }
 
-    public void deleteMessages(String userId, String relatedUserId, MessageTypes messageTypes){
-        logger.info("Begin to delete {} {} {}message", userId,relatedUserId,messageTypes);
+    public void deleteMessages(String userId, String relatedUserId, EventsType eventsType){
+        logger.info("Begin to delete {} {} {}message", userId,relatedUserId, eventsType);
         try {
-            jdbcTemplate.update(DELETE_USER_MESSAGES, userId,relatedUserId,messageTypes.toString());
+            jdbcTemplate.update(DELETED_MESSAGES, userId,relatedUserId, eventsType.toString());
         } catch (DataAccessException dataAccessException) {
             logger.error("Delete messages error ", dataAccessException);
         }

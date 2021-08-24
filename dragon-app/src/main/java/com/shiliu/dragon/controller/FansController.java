@@ -5,7 +5,7 @@ import com.shiliu.dragon.dao.messages.MessagesDao;
 import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.fans.Fans;
 import com.shiliu.dragon.model.fans.FansResponse;
-import com.shiliu.dragon.model.messages.MessageTypes;
+import com.shiliu.dragon.model.common.EventsType;
 import com.shiliu.dragon.model.messages.Messages;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.utils.AuthUtils;
@@ -63,7 +63,7 @@ public class FansController {
         String follow = AuthUtils.getUserIdFromRequest(request);
         Fans fans = new Fans(RandomUtils.getDefaultRandom(),uper.getId(),follow,System.currentTimeMillis());
         fansDao.addFans(fans);
-        addMessages(uper.getId(),follow,MessageTypes.FOLLOWER);
+        addMessages(uper.getId(),follow, EventsType.FOLLOWER);
         return JsonUtil.toJson(FansResponse.FANS_FOLLOW_SUCCESS);
     }
 
@@ -78,7 +78,7 @@ public class FansController {
         String follow = AuthUtils.getUserIdFromRequest(request);
         Fans fans = new Fans(RandomUtils.getDefaultRandom(),userId,follow,System.currentTimeMillis());
         fansDao.deleteFans(fans);
-        deleteMessages(follow,userId,MessageTypes.FOLLOWER);
+        deleteMessages(follow,userId, EventsType.FOLLOWER);
         return JsonUtil.toJson(FansResponse.FANS_CANCEL_FOLLOW_SUCCESS);
     }
 
@@ -97,7 +97,7 @@ public class FansController {
 
     }
 
-    private void addMessages(String userId, String relatedUserId, MessageTypes messageTypes) {
+    private void addMessages(String userId, String relatedUserId, EventsType eventsType) {
         executors.submit(new Runnable() {
             @Override
             public void run() {
@@ -106,17 +106,17 @@ public class FansController {
                 String relatedUserPortrait = user.getPortrait();
                 long productedTime = System.currentTimeMillis();
                 String id = RandomUtils.getDefaultRandom();
-                Messages messages = new Messages(id,userId,relatedUserName,relatedUserPortrait,relatedUserId,"","",productedTime,messageTypes);
+                Messages messages = new Messages(id,userId,relatedUserName,relatedUserPortrait,relatedUserId,"","",productedTime, eventsType);
                 messagesDao.addMessages(messages);
             }
         });
     }
 
-    private void deleteMessages(String userId, String relatedUserId, MessageTypes messageTypes) {
+    private void deleteMessages(String userId, String relatedUserId, EventsType eventsType) {
         executors.submit(new Runnable() {
             @Override
             public void run() {
-                messagesDao.deleteMessages(userId,relatedUserId,messageTypes);
+                messagesDao.deleteMessages(userId,relatedUserId, eventsType);
             }
         });
     }

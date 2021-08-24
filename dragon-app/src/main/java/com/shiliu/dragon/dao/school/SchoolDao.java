@@ -6,6 +6,7 @@ import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -32,8 +33,12 @@ public class SchoolDao {
 
     public void addSchool(School school) {
         logger.info("Begin add school {}" + school.getName());
-        jdbcTemplate.update(ADD_SCHOOL,school.getId(),school.getName(),school.getDescription(),school.getUrl(), JsonUtil.toJson(school.getAnnex()));
-        logger.info("Add school {} success",school.getName());
+        try {
+            jdbcTemplate.update(ADD_SCHOOL, school.getId(), school.getName(), school.getDescription(), school.getUrl(), JsonUtil.toJson(school.getAnnex()));
+            logger.info("Add school {} success", school.getName());
+        } catch (DataAccessException e) {
+            logger.error("Add school error", e);
+        }
     }
 
     public School querySchoolByName(String name) {
@@ -48,27 +53,27 @@ public class SchoolDao {
         }
     }
 
-    public List<School> querySchools(int offset, int limit){
-        logger.info("Begin querySchools offset {} limit {}",offset,limit);
-        try{
-            List<School> schools = jdbcTemplate.query(QUERY_SCHOOL_PAGE,new SchoolRowMapper(),offset,limit);
-            logger.info("Query schools success and size = {}",schools.size());
+    public List<School> querySchools(int offset, int limit) {
+        logger.info("Begin querySchools offset {} limit {}", offset, limit);
+        try {
+            List<School> schools = jdbcTemplate.query(QUERY_SCHOOL_PAGE, new SchoolRowMapper(), offset, limit);
+            logger.info("Query schools success and size = {}", schools.size());
             return schools;
-        }catch (EmptyResultDataAccessException e){
-            logger.error("Query schools with EmptyResultDataAccessException ",e);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Query schools with EmptyResultDataAccessException ", e);
             return null;
         }
     }
 
     public boolean updateSchool(SchoolModifyModel schoolModifyModel) {
-        logger.info("Begin update school {}",schoolModifyModel);
+        logger.info("Begin update school {}", schoolModifyModel);
         try {
             String updateSQL = UPDATE_SCHOOL + schoolModifyModel.model2Sql();
             jdbcTemplate.update(updateSQL);
             logger.info("Update school success");
             return true;
-        }catch (Exception e){
-            logger.warn("Update school failed ",e);
+        } catch (Exception e) {
+            logger.warn("Update school failed ", e);
             return false;
         }
     }

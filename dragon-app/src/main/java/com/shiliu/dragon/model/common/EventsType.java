@@ -1,11 +1,11 @@
-package com.shiliu.dragon.model.messages;
+package com.shiliu.dragon.model.common;
 
 /**
  * @author ouyangchao
  * @createTime
  * @description
  */
-public enum MessageTypes {
+public enum EventsType {
     COMMENT,
     STAR,
     FOLLOWER,

@@ -5,6 +5,7 @@ import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserModifyModel;
 import com.shiliu.dragon.model.user.UserQueryModel;
 import com.shiliu.dragon.properties.NginxProperties;
+import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +36,9 @@ public class UserDao {
     private static String QUERY_USER_CONDITION = "select * from user_basic_info ";
     private static String UPDATE_USER = "update user_basic_info set ";
     //插入头像url
-    private static String ADD_PORTRAIT = "insert into user_extend_info(id,name,value) values(?,?,?)";
+    private static String ADD_EXTEND_PROPERTIES = "insert into user_extend_info values";
     //更新头像信息
-    private static String UPDATE_PORTAINT = "update user_extend_info set value = ? where id = ? and name = ?";
+    private static String UPDATE_EXTEND_PROPERTIES = "update user_extend_info set value = ? where id = ? and name = ?";
 
     //查询头像信息
     private static String QUERY_PORTRAIT = "select * from user_extend_info where id = ? and name = ?";
@@ -49,18 +52,28 @@ public class UserDao {
     @Autowired
     private NginxProperties nginxProperties;
 
-    public void addUser(User user) throws DragonException {
+    public boolean addUser(User user) {
         logger.info("Begin add user {}" + user.getMobile());
-        jdbcTemplate.update(ADD_USER_SQL, user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(), user.getBirthday(), user.getMajorIn(), user.getSex(), user.getDescription(), user.getRegisterTime());
-        //设置用户默认头像信息
-        addExtendProperties(user.getId(), User.PORTRAITURI_NAME, nginxProperties.getPortraitUri() + User.PORTRAITURI_DEFAULT_VALUE);
-        logger.info("Add user {} success", user.getMobile());
+        try {
+            jdbcTemplate.update(ADD_USER_SQL, user.getId(), user.getMobile(), user.getPassword(), user.getOrigin(), user.getUserName(), user.getSchool(), user.getBirthday(), user.getMajorIn(), user.getSex(), user.getDescription(), user.getRegisterTime());
+            //设置用户默认头像信息
+            user.addProperty(User.PORTRAITURI_NAME, nginxProperties.getPortraitUri() + User.PORTRAITURI_DEFAULT_VALUE);
+            addExtendProperties(user);
+            logger.info("Add user {} success", user.getMobile());
+            return true;
+        } catch (DataAccessException e) {
+            logger.error("Add user erro ", e);
+            return false;
+        }
     }
 
     public User queryUserByMobile(String mobile) {
         try {
             logger.info("Begin query user {}", mobile);
             User user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserDetailRowMapper(), mobile);
+            if(user != null) {
+                user.setExtendProperties(queryUserExtends(user.getId()));
+            }
             logger.info("Query user {} success", user.getMobile());
             return user;
         } catch (EmptyResultDataAccessException e) {
@@ -133,29 +146,41 @@ public class UserDao {
 
     /**
      * 添加扩展属性
-     *
-     * @param id
-     * @param name
-     * @param value
+     * @param user
+     * @throws DragonException
      */
-    public void addExtendProperties(String id, String name, String value) throws DragonException {
-        logger.info("Begin to add user {}", name);
+    public boolean addExtendProperties(User user) {
+        logger.info("Begin to add user properties {}", user.getUserName());
         try {
-            jdbcTemplate.update(ADD_PORTRAIT, id, name, value);
-            logger.info("Add {} success", name);
+            if (user.getExtendProperties().isEmpty()) {
+                return true;
+            } else {
+                String addExtendSQL = ADD_EXTEND_PROPERTIES;
+                Iterator<Map.Entry<String, Object>> iterator = user.getExtendProperties().entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry entry = iterator.next();
+                    String key = (String) entry.getKey();
+                    String value = JsonUtil.toJson(entry.getValue());
+                    addExtendSQL += "()" + user.getId() + "," + key + "," + value + "),";
+                }
+                addExtendSQL = addExtendSQL.substring(0, addExtendSQL.length() - 1);
+                jdbcTemplate.update(addExtendSQL);
+            }
+            logger.info("Add {} success", user.getUserName());
+            return true;
         } catch (DataAccessException accessException) {
             logger.error("Update user extend properties success");
-            throw new DragonException("Add extend properties error");
+            return false;
         }
     }
 
     public void updateExtendProperties(String id, String name, String value) throws DragonException {
         logger.info("Begin to update user {}", name);
         try {
-            jdbcTemplate.update(UPDATE_PORTAINT, value, id, name);
+            jdbcTemplate.update(UPDATE_EXTEND_PROPERTIES, value, id, name);
             logger.info("Update {} success", name);
-        }catch (DataAccessException e){
-            logger.error("Update extend properties error",e);
+        } catch (DataAccessException e) {
+            logger.error("Update extend properties error", e);
             throw new DragonException("Update user extend properties error");
         }
     }
@@ -185,17 +210,21 @@ public class UserDao {
      * @return
      */
     public Map queryUserExtends(String id) {
-        logger.info("Begin query user extends");
+        logger.info("Begin query user {} extends", id);
+        Map map = new HashMap();
         try {
-            Map map = jdbcTemplate.queryForObject(QUERY_USER_EXTENDS, new UserExtendRowMapper(), id);
+            List<Map> maps = jdbcTemplate.query(QUERY_USER_EXTENDS, new UserExtendRowMapper(), id);
+            if (!maps.isEmpty()) {
+                maps.stream().forEach(m -> {
+                    map.putAll(m);
+                });
+            }
             logger.info("Query user extends success");
-            return map;
         } catch (EmptyResultDataAccessException e) {
             logger.error("Query user extends with EmptyResultDataAccessException ", e);
-            return null;
         }
+        return map;
     }
-
 }
 
 

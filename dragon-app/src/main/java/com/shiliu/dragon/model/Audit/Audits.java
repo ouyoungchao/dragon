@@ -10,18 +10,25 @@ public class Audits {
     private String id;
     private String userId;
     private String meterials;
-    private char status;
+    private AuditStatus status;
     private long postData;
     private long auditData;
     private String managerId;
     private boolean isManager;
+    private String school;
 
-    public Audits(String userId, String meterials, char status, long postData,boolean isManager) {
+    public Audits() {
+    }
+
+    public Audits(String userId, String meterials, AuditStatus status, long postData, long auditData, String managerId, boolean isManager, String school) {
         this.userId = userId;
         this.meterials = meterials;
         this.status = status;
         this.postData = postData;
+        this.auditData = auditData;
+        this.managerId = managerId;
         this.isManager = isManager;
+        this.school = school;
     }
 
     public String getId() {
@@ -48,11 +55,11 @@ public class Audits {
         this.meterials = meterials;
     }
 
-    public char getStatus() {
+    public AuditStatus getStatus() {
         return status;
     }
 
-    public void setStatus(char status) {
+    public void setStatus(AuditStatus status) {
         this.status = status;
     }
 
@@ -80,12 +87,20 @@ public class Audits {
         this.managerId = managerId;
     }
 
-    public boolean isManager() {
+    public boolean getIsManager() {
         return isManager;
     }
 
-    public void setManager(boolean manager) {
+    public void setIsManager(boolean manager) {
         isManager = manager;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
     }
 
     @Override
@@ -94,7 +109,7 @@ public class Audits {
                 "id='" + id + '\'' +
                 ", userId='" + userId + '\'' +
                 ", meterials='" + meterials + '\'' +
-                ", status=" + (int)status +
+                ", status=" + status +
                 ", postData=" + postData +
                 ", auditData=" + auditData +
                 ", managerId='" + managerId + '\'' +

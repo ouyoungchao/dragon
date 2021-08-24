@@ -22,6 +22,6 @@ public class FirstApplication {
 	
 	@GetMapping("/hello")
 	public String hello(){
-		return "hello spring";
+		return "hello dragon";
 	}
 }

@@ -1,6 +1,6 @@
 package com.shiliu.dragon.dao.messages;
 
-import com.shiliu.dragon.model.messages.MessageTypes;
+import com.shiliu.dragon.model.common.EventsType;
 import com.shiliu.dragon.model.messages.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class MessagesMapper implements RowMapper<Messages> {
             messages.setContentId(resultSet.getString("contentId"));
             messages.setContent(resultSet.getString("content"));
             messages.setProductedTime(resultSet.getLong("productTime"));
-            messages.setMessageType(MessageTypes.valueOf(resultSet.getString("messageType")));
+            messages.setMessageType(EventsType.valueOf(resultSet.getString("messageType")));
         } catch (SQLException throwables) {
             logger.error("ResultSet2Messages error ",throwables);
         }

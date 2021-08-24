@@ -1,13 +1,17 @@
 package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.dao.audit.AuditDao;
+import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.Audit.AuditResponse;
+import com.shiliu.dragon.model.Audit.AuditStatus;
 import com.shiliu.dragon.model.Audit.Audits;
+import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.properties.NginxProperties;
 import com.shiliu.dragon.security.validate.AuthResponse;
 import com.shiliu.dragon.utils.AuthUtils;
 import com.shiliu.dragon.utils.PictureUtils;
 import com.shiliu.dragon.utils.utils.JsonUtil;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +46,9 @@ public class AuthController {
     private AuditDao auditDao;
 
     @Autowired
+    private UserDao userDao;
+
+    @Autowired
     private RedisTemplate redisTemplate;
 
     @PostMapping("/logout")
@@ -54,35 +61,83 @@ public class AuthController {
     }
 
     @PostMapping("/student")
-    public String studentsAuth(HttpServletRequest request){
-        return uploadAudit(request,false);
+    public String studentsAuth(HttpServletRequest request) {
+        return uploadAudit(request, false);
     }
 
     @PostMapping("/manager")
-    public String managerAuth(HttpServletRequest request){
-        return uploadAudit(request,true);
+    public String managerAuth(HttpServletRequest request) {
+        return uploadAudit(request, true);
+    }
+
+    /**
+     * 审核
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/examine")
+    public String examineAuth(HttpServletRequest request) {
+        logger.info("Begin auth");
+        String id = request.getParameter("taskId");
+        if (StringUtils.isEmpty(id) || AuditStatus.valueOf(request.getParameter("status")) == null) {
+            logger.error("Auth id is empty");
+            return JsonUtil.toJson(AuditResponse.EXAMINE_PARAM_ERROR);
+        }
+        Audits audits = auditDao.queryAuditInfoById(id);
+        if (audits == null) {
+            logger.error("Auth not exist");
+            return JsonUtil.toJson(AuditResponse.EXAMINE_PARAM_ERROR);
+        }
+        AuditStatus status = AuditStatus.valueOf(request.getParameter("status"));
+        audits.setStatus(status);
+        auditDao.updateExamineStatus(audits);
+        logger.info("Examine finish and status is {}", status);
+        if(audits.getIsManager()){
+            User user = new User();
+            user.setId(AuthUtils.getUserIdFromRequest(request));
+            user.addProperty("isManager",true);
+            user.addProperty("managerId",audits.getSchool());
+            userDao.addExtendProperties(user);
+        }
+        return JsonUtil.toJson(AuditResponse.EXAMINE_FINISH);
+    }
+
+    @PostMapping("queryExamineTasks")
+    public String queryAllExamineTasks(HttpServletRequest request) {
+        String managerId = AuthUtils.getUserIdFromRequest(request);
+        List<Audits> audits = auditDao.queryAuditInfoByManager(managerId);
+        AuditResponse response = AuditResponse.QUERY_EXAMINE_TASK_SUCCESS;
+        response.setMessage(audits);
+        return JsonUtil.toJson(response);
     }
 
     private void setDefaultValue(Audits audits) {
         audits.setId(UUID.randomUUID().toString().replace("-", "").toLowerCase());
     }
 
-    private String  uploadAudit(HttpServletRequest request,boolean isManager){
+    private String uploadAudit(HttpServletRequest request, boolean isManager) {
         String userId = AuthUtils.getUserIdFromRequest(request);
-        MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest)request;
+        MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
         List<MultipartFile> files = multipartHttpServletRequest.getFiles("file");
-        if (files == null || files.isEmpty()) {
+        String school = request.getParameter("school");
+        if (files == null || files.isEmpty() || school == null) {
             logger.warn("Param is invalid {}", files);
             return JsonUtil.toJson(AuditResponse.AUDIT_PARAM_ERROR);
         }
-        List<String> meterials = PictureUtils.uploadPicture(files,nginxProperties.getAudit(),nginxProperties.getContentUri());
-        Audits audits = new Audits(userId,JsonUtil.toJson(meterials),(char)0,System.currentTimeMillis(),isManager);
+        //上传认证材料
+        List<String> meterials = PictureUtils.uploadPicture(files, nginxProperties.getAudit(), nginxProperties.getContentUri());
+        String managerId = school;
+        if (isManager) {
+            managerId = "admin";
+        }
+        Audits audits = new Audits(userId, JsonUtil.toJson(meterials), AuditStatus.WAITING_EXAMINE, System.currentTimeMillis(), 0l, managerId, isManager, school);
         setDefaultValue(audits);
         try {
             auditDao.addAudit(audits);
             return JsonUtil.toJson(AuditResponse.UPLOADAUDITSUCCESS);
-        }catch (Exception e){
-            logger.warn("Add audits failed ",e);
+        } catch (Exception e) {
+            logger.warn("Add audits failed ", e);
             return JsonUtil.toJson(AuditResponse.UPLOADAUDITFAILED);
         }
     }

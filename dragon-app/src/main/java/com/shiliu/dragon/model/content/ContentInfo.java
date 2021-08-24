@@ -18,10 +18,13 @@ public class ContentInfo implements Serializable {
 
     private List<Comments> comments;
 
-    public ContentInfo(Content content, User user, List<Comments> comments) {
+    private List<ContentEvents> stars;
+
+    public ContentInfo(Content content, User user, List<Comments> comments,List<ContentEvents> stars) {
         this.content = content;
         this.user = user;
         this.comments = comments;
+        this.stars = stars;
     }
 
     public Content getContent() {
@@ -38,6 +41,14 @@ public class ContentInfo implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<ContentEvents> getStars() {
+        return stars;
+    }
+
+    public void setStars(List<ContentEvents> stars) {
+        this.stars = stars;
     }
 
     public List<Comments> getComments() {

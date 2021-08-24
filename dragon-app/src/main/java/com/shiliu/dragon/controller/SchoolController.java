@@ -1,9 +1,11 @@
 package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.dao.school.SchoolDao;
+import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.school.School;
 import com.shiliu.dragon.model.school.SchoolModifyModel;
 import com.shiliu.dragon.model.school.SchoolResponse;
+import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.model.user.UserResponse;
 import com.shiliu.dragon.security.validate.ValidateCodeException;
 import com.shiliu.dragon.utils.SchoolUtils;
@@ -11,6 +13,7 @@ import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +36,12 @@ public class SchoolController {
     @Autowired
     private SchoolDao schoolDao;
 
+    @Autowired
+    private UserDao userDao;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping("/add")
     public String addSchool(@RequestBody String schoolContext) {
         logger.info("Begin add school " + schoolContext);
@@ -49,9 +58,25 @@ public class SchoolController {
             return JsonUtil.toJson(SchoolResponse.SCHOOL_ADD_EXIST);
         }
         schoolDao.addSchool(school);
+        User user = createManager(school);
+        userDao.addUser(user);
         logger.info("Add school {} success", school.getName());
         //注册用户
         return JsonUtil.toJson(SchoolResponse.SCHOOL_ADD_SUCCESS);
+    }
+
+    private User createManager(School school) {
+        User user = new User(school.getName(),school.getName(),school.getName(),null,school.getName(),school.getName(),null,(byte) 0);
+        if (user.getDescription() == null) {
+            user.setDescription(User.DEFAULT_DESCRIPTION);
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // TODO: 2021/8/22 用户id不符合安全长度
+        user.setId(school.getName());
+        user.setRegisterTime(System.currentTimeMillis());
+        user.addProperty("isManager",true);
+        user.addProperty("managerId",user.getId());
+        return user;
     }
 
     @PostMapping("query")

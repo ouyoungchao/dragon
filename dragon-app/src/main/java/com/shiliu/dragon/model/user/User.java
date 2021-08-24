@@ -57,6 +57,13 @@ public class User implements Serializable {
 
     private Map<String, Object> extendProperties = new ConcurrentHashMap<>();
 
+    public Object getExtendProperties(String name) {
+        if (name == null) {
+            return null;
+        }
+        return extendProperties.get(name);
+    }
+
     public String getId() {
         return id;
     }
@@ -102,8 +109,8 @@ public class User implements Serializable {
     }
 
 
-    public String getPortrait(){
-        return (String)extendProperties.get(PORTRAITURI_NAME);
+    public String getPortrait() {
+        return (String) extendProperties.get(PORTRAITURI_NAME);
     }
 
     public void setUserName(String userName) {
@@ -166,7 +173,7 @@ public class User implements Serializable {
         this.extendProperties = extendProperties;
     }
 
-    public void addProperty(String name, String values) {
+    public void addProperty(String name, Object values) {
         extendProperties.put(name, values);
     }
 

@@ -1,5 +1,7 @@
 package com.shiliu.dragon.model.messages;
 
+import com.shiliu.dragon.model.common.EventsType;
+
 /**
  * @author ouyangchao
  * @createTime
@@ -46,12 +48,12 @@ public class Messages implements Comparable {
     /**
      * 消息类型
      */
-    private MessageTypes messageType;
+    private EventsType messageType;
 
     public Messages() {
     }
 
-    public Messages(String id, String userId, String relatedUserName, String relatedUserPortrait, String relatedUserId, String content, String contentId, long productedTime, MessageTypes messageType) {
+    public Messages(String id, String userId, String relatedUserName, String relatedUserPortrait, String relatedUserId, String content, String contentId, long productedTime, EventsType messageType) {
         this.id = id;
         this.userId = userId;
         this.relatedUserName = relatedUserName;
@@ -127,11 +129,11 @@ public class Messages implements Comparable {
         this.productedTime = productedTime;
     }
 
-    public MessageTypes getMessageType() {
+    public EventsType getMessageType() {
         return messageType;
     }
 
-    public void setMessageType(MessageTypes messageType) {
+    public void setMessageType(EventsType messageType) {
         this.messageType = messageType;
     }
 

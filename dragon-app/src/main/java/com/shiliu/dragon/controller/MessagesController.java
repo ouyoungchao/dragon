@@ -2,7 +2,7 @@ package com.shiliu.dragon.controller;
 
 import com.shiliu.dragon.dao.messages.MessagesDao;
 import com.shiliu.dragon.model.messages.MessageResponse;
-import com.shiliu.dragon.model.messages.MessageTypes;
+import com.shiliu.dragon.model.common.EventsType;
 import com.shiliu.dragon.model.messages.Messages;
 import com.shiliu.dragon.model.messages.MessagesInfo;
 import com.shiliu.dragon.utils.AuthUtils;
@@ -10,7 +10,6 @@ import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,10 +44,10 @@ public class MessagesController {
             logger.info("No new messages");
             return JsonUtil.toJson(MessageResponse.NOMESSAGES);
         }
-        List<Messages> comments = messages.stream().filter(message -> message.getMessageType().equals(MessageTypes.COMMENT)).sorted().collect(Collectors.toList());
-        List<Messages> stars = messages.stream().filter(message -> message.getMessageType().equals(MessageTypes.STAR)).sorted().collect(Collectors.toList());
-        List<Messages> followers = messages.stream().filter(message -> message.getMessageType().equals(MessageTypes.FOLLOWER)).sorted().collect(Collectors.toList());
-        List<Messages> collects = messages.stream().filter(message -> message.getMessageType().equals(MessageTypes.COLLECT)).sorted().collect(Collectors.toList());
+        List<Messages> comments = messages.stream().filter(message -> message.getMessageType().equals(EventsType.COMMENT)).sorted().collect(Collectors.toList());
+        List<Messages> stars = messages.stream().filter(message -> message.getMessageType().equals(EventsType.STAR)).sorted().collect(Collectors.toList());
+        List<Messages> followers = messages.stream().filter(message -> message.getMessageType().equals(EventsType.FOLLOWER)).sorted().collect(Collectors.toList());
+        List<Messages> collects = messages.stream().filter(message -> message.getMessageType().equals(EventsType.COLLECT)).sorted().collect(Collectors.toList());
         MessagesInfo messagesInfo = new MessagesInfo(comments,stars,followers,collects);
         MessageResponse response = MessageResponse.QUERYMESSAGESUCCESS;
         response.setMessage(messagesInfo);

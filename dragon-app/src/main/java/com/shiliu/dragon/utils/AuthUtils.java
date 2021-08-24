@@ -22,4 +22,11 @@ public class AuthUtils {
         }
         return null;
     }
+
+    public static String encode(String s) {
+        if (s == null) {
+            return null;
+        }
+        return new String(Base64.getEncoder().encode(s.getBytes(StandardCharsets.UTF_8)));
+    }
 }

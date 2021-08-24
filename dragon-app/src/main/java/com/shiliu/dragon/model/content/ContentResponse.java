@@ -14,6 +14,7 @@ public enum ContentResponse {
     PUBLISH_FAILED(3002,"Publish Content Failed"),
     CONTENT_INVALID(3003,"Not meet legal requirement"),
     MESSAGE_INVALID(3004,"Message is invalid"),
+    DELETE_SUCCESS(3005,"Delete content success"),
 
     QUERYCONTENT_BYID_PARAMERROR(3010,"Query param error"),
     QUERYCONTENT_BYID_SUCCESS(3011,"Query content by id success"),
@@ -23,6 +24,7 @@ public enum ContentResponse {
     COMMENTS_SUCCESS(3021,"Comments publish success"),
     COMMENTS_FAILED(3022,"Comments failed"),
     COMMENTS_CONTENT_NOT_EXIST(3023,"Comments not exit"),
+    COMMENTS_DELETE_SUCCESS(3024,"Comments delete success"),
 
     COMMENTS_QUERYPARAM_ERROR(3030,"Comments query param error"),
     COMMENTS_QUERYPARAM_SUCCESS(3031,"Comments query success"),

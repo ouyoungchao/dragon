@@ -5,7 +5,7 @@ import com.shiliu.dragon.dao.messages.MessagesDao;
 import com.shiliu.dragon.dao.user.UserDao;
 import com.shiliu.dragon.model.content.*;
 import com.shiliu.dragon.model.exception.DragonException;
-import com.shiliu.dragon.model.messages.MessageTypes;
+import com.shiliu.dragon.model.common.EventsType;
 import com.shiliu.dragon.model.messages.Messages;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.properties.NginxProperties;
@@ -40,6 +40,7 @@ public class ContentController {
     public static final String COLLECTIONS = "collections";
     private static Logger logger = LoggerFactory.getLogger(ContentController.class);
     private static final String CONTENT_ID = "contentId";
+    private static final String COMMENT_ID = "commentId";
 
     private static ExecutorService execute = Executors.newCachedThreadPool();
 
@@ -76,6 +77,7 @@ public class ContentController {
         if (content == null) {
             content = new Content();
         }
+        content.setSubject(request.getParameter("subject"));
         String userId = AuthUtils.getUserIdFromRequest(request);
         content.setUserId(userId);
         if (files != null && !files.isEmpty()) {
@@ -93,8 +95,42 @@ public class ContentController {
         return JsonUtil.toJson(contentResponse);
     }
 
+    @DeleteMapping("/delete")
+    public String deleteContent(HttpServletRequest request) {
+        logger.info("Begin delete content");
+        String contentId = request.getParameter(CONTENT_ID);
+        if (StringUtils.isEmpty(contentId)) {
+            logger.warn("Content param error {}", contentId);
+            return JsonUtil.toJson(ContentResponse.CONTENT_PARAM_ERROR);
+        }
+        Content content = contentDao.queryContent(contentId);
+        if (content == null) {
+            logger.warn("Content {} not exit", contentId);
+            return JsonUtil.toJson(ContentResponse.CONTENT_PARAM_ERROR);
+        }
+        contentDao.deleteContent(contentId);
+        return JsonUtil.toJson(ContentResponse.DELETE_SUCCESS);
+    }
 
-    @PostMapping("/{id}")
+    @DeleteMapping("/deleteComment")
+    public String deleteComment(HttpServletRequest request) {
+        logger.info("Begin delete comment");
+        String commentId = request.getParameter(COMMENT_ID);
+        if (StringUtils.isEmpty(commentId)) {
+            logger.warn("Content param error {}", commentId);
+            return JsonUtil.toJson(ContentResponse.CONTENT_PARAM_ERROR);
+        }
+        Comments comments = contentDao.queryComment(commentId);
+        if (comments == null) {
+            logger.warn("Content {} not exit", comments);
+            return JsonUtil.toJson(ContentResponse.CONTENT_PARAM_ERROR);
+        }
+        contentDao.deleteCommentById(commentId);
+        return JsonUtil.toJson(ContentResponse.COMMENTS_DELETE_SUCCESS);
+    }
+
+
+    @PostMapping("/details/{id}")
     public String queryContentById(@PathVariable(name = "id") String id) {
         if (id.trim().isEmpty()) {
             logger.warn("Content id is invalid");
@@ -115,6 +151,7 @@ public class ContentController {
 
     /**
      * 条件查询所有贴子
+     *
      * @param request
      * @return
      */
@@ -173,7 +210,7 @@ public class ContentController {
         try {
             contentDao.addComments(comments);
             logger.info("Publish content success");
-            addMessages(comments.getContentId(), comments.getUserId(), MessageTypes.COMMENT);
+            addMessages(comments.getContentId(), comments.getUserId(), EventsType.COMMENT);
             ContentResponse contentResponse = ContentResponse.COMMENTS_SUCCESS;
             return JsonUtil.toJson(contentResponse);
         } catch (Exception exception) {
@@ -230,9 +267,21 @@ public class ContentController {
             return JsonUtil.toJson(ContentResponse.STAR_CONTENTID_NOTEXIST);
         }
         String userId = AuthUtils.getUserIdFromRequest(request);
-        contentDao.addStar(userId, contentId);
-        addMessages(contentId, AuthUtils.getUserIdFromRequest(request), MessageTypes.STAR);
+        Star star = new Star();
+        star.setContentId(contentId);
+        star.setUserId(userId);
+        setDefaultValue(star);
+        contentDao.addEvent(star);
+        addMessages(contentId, AuthUtils.getUserIdFromRequest(request), EventsType.STAR);
         return JsonUtil.toJson(ContentResponse.STAR_SUCCESS);
+    }
+
+    private void setDefaultValue(ContentEvents contentEvents) {
+        User user = userDao.queryUserById(contentEvents.getUserId());
+        contentEvents.setUserName(user.getUserName());
+        contentEvents.setUserPortrait(user.getPortrait());
+        contentEvents.setId(RandomUtils.getDefaultRandom());
+        contentEvents.setAccurrentTime(System.currentTimeMillis());
     }
 
     @PostMapping("/cancelStar")
@@ -249,8 +298,8 @@ public class ContentController {
             return JsonUtil.toJson(ContentResponse.STAR_CONTENTID_NOTEXIST);
         }
         String userId = AuthUtils.getUserIdFromRequest(request);
-        contentDao.cancelStar(userId, contentId);
-        deleteMessages(contentId, userId, MessageTypes.STAR);
+        contentDao.cancelEvent(userId, contentId, EventsType.STAR);
+        deleteMessages(contentId, userId, EventsType.STAR);
         return JsonUtil.toJson(ContentResponse.STAR_CANCEL_SUCCESS);
     }
 
@@ -273,20 +322,19 @@ public class ContentController {
             return JsonUtil.toJson(ContentResponse.COLLECT_CONTENTID_NOTEXIST);
         }
         String userId = AuthUtils.getUserIdFromRequest(request);
-        Map extendInfo = userDao.queryUserExtends(userId);
-        if (extendInfo.get(COLLECTIONS) != null) {
-            List<String> collections = JsonUtil.readValue((String) extendInfo.get(COLLECTIONS), List.class);
-            collections.add(contentId);
-            userDao.updateExtendProperties(userId, COLLECTIONS, JsonUtil.toJson(collections));
-            logger.info("Collect update success");
+        ContentEvents collect = contentDao.queryUserEvent(contentId, userId, EventsType.COLLECT);
+        if (collect != null) {
+            logger.warn("User {} has Collected content {}", userId, contentId);
         } else {
-            List<String> collections = new ArrayList<>();
-            collections.add(contentId);
-            userDao.addExtendProperties(userId, COLLECTIONS, JsonUtil.toJson(collections));
-            logger.info("Collect success");
+            collect = new Collect();
+            collect.setContentId(contentId);
+            collect.setUserId(userId);
+            setDefaultValue(collect);
+            contentDao.addEvent(collect);
+            logger.info("{} Collect {} success", userId, contentId);
 
         }
-        addMessages(contentId, AuthUtils.getUserIdFromRequest(request), MessageTypes.COLLECT);
+        addMessages(contentId, AuthUtils.getUserIdFromRequest(request), EventsType.COLLECT);
         return JsonUtil.toJson(ContentResponse.COLLECT_SUCCESS);
     }
 
@@ -303,13 +351,11 @@ public class ContentController {
             return JsonUtil.toJson(ContentResponse.COLLECT_CONTENTID_NOTEXIST);
         }
         String userId = AuthUtils.getUserIdFromRequest(request);
-        Map extendInfo = userDao.queryUserExtends(userId);
-        if (extendInfo.get(COLLECTIONS) != null) {
-            List<String> collections = JsonUtil.readValue((String) extendInfo.get(COLLECTIONS), List.class);
-            collections.remove(contentId);
-            userDao.updateExtendProperties(userId, COLLECTIONS, JsonUtil.toJson(collections));
-            logger.info("Collect update success");
-            deleteMessages(contentId, userId, MessageTypes.COLLECT);
+        ContentEvents contentEvents = contentDao.queryUserEvent(contentId, userId, EventsType.COLLECT);
+        if (contentEvents != null) {
+            contentDao.cancelEvent(userId, contentId, EventsType.COLLECT);
+            logger.info("{} cancel Collect {}} success", userId, contentId);
+            deleteMessages(contentId, userId, EventsType.COLLECT);
         }
         return JsonUtil.toJson(ContentResponse.COLLECT_CANCEL_SUCCESS);
     }
@@ -317,13 +363,12 @@ public class ContentController {
     @PostMapping("/myCollections")
     public String myCollections(HttpServletRequest request) {
         String userId = AuthUtils.getUserIdFromRequest(request);
-        Map extendInfo = userDao.queryUserExtends(userId);
-        if (extendInfo.get(COLLECTIONS) != null) {
+        List<ContentEvents> collects = contentDao.queryUserEventS(userId, EventsType.COLLECT);
+        if (collects != null) {
             ContentResponse response = ContentResponse.QUERY_MYCOLLECTION_SUCCESS;
-            List<String> contendIds = JsonUtil.readValue((String) extendInfo.get(COLLECTIONS), List.class);
             List<ContentInfo> contentInfos = new ArrayList<>();
-            for (String contentId : contendIds) {
-                contentInfos.add(contentDao.queryContentInfoById(contentId));
+            for (ContentEvents event : collects) {
+                contentInfos.add(contentDao.queryContentInfoById(event.getContentId()));
             }
             response.setMessage(contentInfos);
             return JsonUtil.toJson(response);
@@ -347,7 +392,7 @@ public class ContentController {
      * @param contentId     点赞/评论/收藏者的内容的id
      * @param relatedUserId 点赞/评论/收藏者的id
      */
-    private void addMessages(String contentId, String relatedUserId, MessageTypes messageTypes) {
+    private void addMessages(String contentId, String relatedUserId, EventsType eventsType) {
         execute.submit(new Runnable() {
             @Override
             public void run() {
@@ -359,20 +404,20 @@ public class ContentController {
                 long productedTime = System.currentTimeMillis();
                 String message = content.getMessage();
                 String id = RandomUtils.getDefaultRandom();
-                Messages messages = new Messages(id, userId, relatedUserName, relatedUserPortrait, relatedUserId, message, contentId, productedTime, messageTypes);
+                Messages messages = new Messages(id, userId, relatedUserName, relatedUserPortrait, relatedUserId, message, contentId, productedTime, eventsType);
                 messagesDao.addMessages(messages);
             }
         });
     }
 
-    private void deleteMessages(String cotentId, String relatedUserId, MessageTypes messageTypes) {
+    private void deleteMessages(String cotentId, String relatedUserId, EventsType eventsType) {
         execute.submit(new Runnable() {
             @Override
             public void run() {
                 Content content = contentDao.queryContent(cotentId);
                 if (content != null) {
                     String userId = content.getUserId();
-                    messagesDao.deleteMessages(userId, relatedUserId, messageTypes);
+                    messagesDao.deleteMessages(userId, relatedUserId, eventsType);
                 }
             }
         });

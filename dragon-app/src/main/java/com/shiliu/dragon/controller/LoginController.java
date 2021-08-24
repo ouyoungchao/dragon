@@ -51,7 +51,7 @@ public class LoginController {
     private PasswordEncoder passwordEncoder;
 
     /**
-     * 一键式登录，返回一个临时token
+     * 游客登陆，返回一个临时token
      *
      * @param request
      * @return
@@ -75,7 +75,7 @@ public class LoginController {
                 user = generateUser(mobile);
                 userDao.addUser(user);
                 request.getRequestDispatcher("/dragon/authentication/mobile").forward(request,response);
-            } catch (ServletException | IOException | DragonException e) {
+            } catch (ServletException | IOException e) {
                 logger.error("Add user or customer logger error",e);
                 throw new DragonException(e.getMessage());
             }

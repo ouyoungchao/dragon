@@ -1,7 +1,9 @@
 package com.shiliu.dragon.dao.content;
 
+import com.shiliu.dragon.model.common.EventsType;
 import com.shiliu.dragon.model.content.Comments;
 import com.shiliu.dragon.model.content.Content;
+import com.shiliu.dragon.model.content.ContentEvents;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +86,34 @@ class CommentRowMapping implements RowMapper<Comments>{
             logger.warn("Row to comments error ",throwables);
         }
         return comments;
+    }
+}
+
+class ContentEventsRowMapping implements RowMapper<ContentEvents>{
+    private static final Logger logger = LoggerFactory.getLogger(ContentEventsRowMapping.class);
+
+    @Override
+    public ContentEvents mapRow(ResultSet resultSet, int i) throws SQLException {
+        if(resultSet == null){
+            return null;
+        }
+        return row2Event(resultSet);
+    }
+
+    private ContentEvents row2Event(ResultSet resultSet) {
+        ContentEvents event = new ContentEvents();
+        try {
+            event.setId(resultSet.getString("id"));
+            event.setUserId(resultSet.getString("userId"));
+            event.setContentId(resultSet.getString("contentId"));
+            event.setAccurrentTime(resultSet.getLong("occurrentTime"));
+            event.setUserName(resultSet.getString("userName"));
+            event.setUserPortrait(resultSet.getString("userPortrait"));
+            event.setEventsType(EventsType.valueOf(resultSet.getString("eventType")));
+        } catch (SQLException throwables) {
+            logger.warn("Row to event error ",throwables);
+        }
+        return event;
     }
 }
 

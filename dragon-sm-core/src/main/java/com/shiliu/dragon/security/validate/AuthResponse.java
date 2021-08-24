@@ -34,6 +34,7 @@ public enum AuthResponse implements Serializable {
     private int code;
     private Object message;
     private String tokenId;
+    private Object roleInfo;
 
     public int getCode() {
         return code;
@@ -57,5 +58,13 @@ public enum AuthResponse implements Serializable {
 
     public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
+    }
+
+    public Object getRoleInfo() {
+        return roleInfo;
+    }
+
+    public void setRoleInfo(Object roleInfo) {
+        this.roleInfo = roleInfo;
     }
 }

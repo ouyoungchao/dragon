@@ -1,8 +1,10 @@
 package com.shiliu.dragon.security;
 
 import com.shiliu.dragon.dao.user.UserDao;
+import com.shiliu.dragon.security.authentication.DragonSocialUser;
 import com.shiliu.dragon.model.user.User;
 import com.shiliu.dragon.security.validate.AuthResponse;
+import com.shiliu.dragon.utils.AuthUtils;
 import com.shiliu.dragon.utils.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.stereotype.Component;
@@ -59,11 +60,17 @@ public class DragonUserDetailsService implements UserDetailsService,SocialUserDe
 		String password = user.getPassword();
 		//match匹配password和前台输入的密码
 		try {
-			SocialUser socialUser =  new SocialUser(user.getId(),password,
+			/*SocialUser socialUser =  new SocialUser(user.getId(),password,
 					true,true,true,true,
 					//完成用户的授权
-					AuthorityUtils.commaSeparatedStringToAuthorityList("dragon"));
-//			SocialUser socialUser = new DragonSocialUser(user.getId(),user.getUserName(),user.getPassword(),"Dragon",AuthorityUtils.commaSeparatedStringToAuthorityList("Dragon"),true,true,true,true);
+					AuthorityUtils.commaSeparatedStringToAuthorityList("dragon"));*/
+			DragonSocialUser socialUser = new DragonSocialUser(user.getId(),user.getUserName(),user.getPassword(),"Dragon",AuthorityUtils.commaSeparatedStringToAuthorityList("Dragon"),true,true,true,true);
+			if(user.getExtendProperties("managerId") !=null){
+				socialUser.setRoleInfo(true,(String)user.getExtendProperties("managerId"),AuthUtils.encode((String)user.getExtendProperties("managerId")));
+			} else{
+				socialUser.setRoleInfo(false,null,null);
+			}
+
 			return socialUser;
 		}catch (Exception e){
 			logger.warn("BuildUser error");
