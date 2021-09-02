@@ -68,9 +68,10 @@ public class UserDao {
     }
 
     public User queryUserByMobile(String mobile) {
+        User user = null;
         try {
             logger.info("Begin query user {}", mobile);
-            User user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserDetailRowMapper(), mobile);
+            user = jdbcTemplate.queryForObject(QUERY_USER_BYMOBILE, new UserDetailRowMapper(), mobile);
             if(user != null) {
                 user.setExtendProperties(queryUserExtends(user.getId()));
             }
@@ -78,14 +79,15 @@ public class UserDao {
             return user;
         } catch (EmptyResultDataAccessException e) {
             logger.error("Query user by mobile EmptyResultDataAccessException ");
-            return null;
+            return user;
         }
     }
 
     public User queryUserById(String id) {
+        User user = null;
         try {
             logger.info("Begin query user {}", id);
-            User user = jdbcTemplate.queryForObject(QUERY_USER_BYID, new UserRowMapper(), id);
+            user = jdbcTemplate.queryForObject(QUERY_USER_BYID, new UserRowMapper(), id);
             if (user != null) {
                 user.setExtendProperties(queryUserExtends(user.getId()));
             }
@@ -93,7 +95,7 @@ public class UserDao {
             return user;
         } catch (EmptyResultDataAccessException e) {
             logger.error("Query user by id EmptyResultDataAccessException ");
-            return null;
+            return user;
         }
     }
 
@@ -160,8 +162,11 @@ public class UserDao {
                 while (iterator.hasNext()) {
                     Map.Entry entry = iterator.next();
                     String key = (String) entry.getKey();
-                    String value = JsonUtil.toJson(entry.getValue());
-                    addExtendSQL += "(\''" + user.getId() + "\',\'" + key + "\'," + value + "),";
+                    Object value = JsonUtil.toJson(entry.getValue());
+                    if(entry.getValue() instanceof String){
+                        value = (String)entry.getValue();
+                    }
+                    addExtendSQL += "(\'" + user.getId() + "\',\'" + key + "\',\'" + value + "\'),";
                 }
                 addExtendSQL = addExtendSQL.substring(0, addExtendSQL.length() - 1);
                 logger.info("add extend info "+addExtendSQL);
@@ -220,7 +225,7 @@ public class UserDao {
                     map.putAll(m);
                 });
             }
-            logger.info("Query user extends success");
+            logger.info("Query user extends success {}",map);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Query user extends with EmptyResultDataAccessException ", e);
         }

@@ -99,7 +99,8 @@ public class AuthController {
         }
         if(audits.getIsManager()){
             User user = new User();
-            user.setId(AuthUtils.getUserIdFromRequest(request));
+            user.setId(audits.getUserId());
+            // TODO: 2021/8/25 添加多个管理员时候 需要去重处理
             user.addProperty("isManager",true);
             user.addProperty("managerId",audits.getSchool());
             userDao.addExtendProperties(user);
@@ -130,7 +131,7 @@ public class AuthController {
             return JsonUtil.toJson(AuditResponse.AUDIT_PARAM_ERROR);
         }
         //上传认证材料
-        List<String> meterials = PictureUtils.uploadPicture(files, nginxProperties.getAudit(), nginxProperties.getAuditUr());
+        List<String> meterials = PictureUtils.uploadPicture(files, nginxProperties.getAudit(), nginxProperties.getAuditUri());
         String managerId = school;
         if (isManager) {
             managerId = "admin";

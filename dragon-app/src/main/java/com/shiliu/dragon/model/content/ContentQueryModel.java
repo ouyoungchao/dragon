@@ -53,4 +53,15 @@ public class ContentQueryModel {
         condition += "limit " + offSet + " , " + pageSize;
         return condition;
     }
+
+    @Override
+    public String toString() {
+        return "ContentQueryModel{" +
+                "offSet=" + offSet +
+                ", pageSize=" + pageSize +
+                ", orderByStarts=" + orderByStarts +
+                ", orderByComments=" + orderByComments +
+                ", timeRange=" + timeRange +
+                '}';
+    }
 }

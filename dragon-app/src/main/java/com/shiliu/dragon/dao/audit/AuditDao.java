@@ -29,7 +29,7 @@ public class AuditDao {
 
     private static final String QUEY_AUDIT_BYUSER = "select * from user_audit_info where userId = ?";
 
-    private static final String UPDATE_AUDIT_STATUS = "update user_audit_info set status = ?  and auditData = ? where id = ?";
+    private static final String UPDATE_AUDIT_STATUS = "update user_audit_info set status = ?  where id = ?";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -88,7 +88,7 @@ public class AuditDao {
     public void updateExamineStatus(Audits audits) {
         logger.info("Begin to updata audit {} status {}",audits.getId(),audits.getStatus());
         try {
-            jdbcTemplate.update(UPDATE_AUDIT_STATUS,audits.getStatus().toString(),System.currentTimeMillis(),audits.getId());
+            jdbcTemplate.update(UPDATE_AUDIT_STATUS,audits.getStatus().toString(),audits.getId());
         }catch (DataAccessException exception){
             logger.error("Updata status error ",exception);
         }

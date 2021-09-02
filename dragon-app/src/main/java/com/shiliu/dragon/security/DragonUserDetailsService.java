@@ -66,8 +66,10 @@ public class DragonUserDetailsService implements UserDetailsService,SocialUserDe
 					AuthorityUtils.commaSeparatedStringToAuthorityList("dragon"));*/
 			DragonSocialUser socialUser = new DragonSocialUser(user.getId(),user.getUserName(),user.getPassword(),"Dragon",AuthorityUtils.commaSeparatedStringToAuthorityList("Dragon"),true,true,true,true);
 			if(user.getExtendProperties("managerId") !=null){
+				logger.info("{} is manage",user.getId());
 				socialUser.setRoleInfo(true,(String)user.getExtendProperties("managerId"),AuthUtils.encode((String)user.getExtendProperties("managerId")));
 			} else{
+				logger.info("{} is not  manage",user.getId());
 				socialUser.setRoleInfo(false,null,null);
 			}
 

@@ -43,6 +43,7 @@ public class DragonAuthenticationSuccessHandler extends
 
     private Object generateRoleInfo(Authentication authentication) {
         DragonSocialUser socialUser = (DragonSocialUser) authentication.getPrincipal();
+        logger.info("Role info is {}",socialUser.getRoleInfo());
         return socialUser.getRoleInfo();
 
     }

@@ -1,5 +1,7 @@
 package com.shiliu.dragon.security.authentication;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
@@ -14,6 +16,8 @@ import java.util.List;
  * @description 登录认证使用，承载用户认证信息
  */
 public class DragonSocialUser extends SocialUser {
+
+    private static Logger logger = LoggerFactory.getLogger(DragonSocialUser.class);
     private String id;
     private String userName;
     private String password;
@@ -92,9 +96,12 @@ public class DragonSocialUser extends SocialUser {
 
     public void setRoleInfo(boolean isManager,String managerId,String token) {
         if(isManager && managerId != null) {
+            logger.info("create manager role info");
             this.roleInfo = new RoleInfo(isManager,managerId, token);
+        }else {
+            logger.info("create common role info");
+            this.roleInfo = new RoleInfo();
         }
-        this.roleInfo = new RoleInfo();
     }
 }
 
@@ -137,5 +144,12 @@ class RoleInfo implements Serializable {
         this.managerId = managerId;
     }
 
-
+    @Override
+    public String toString() {
+        return "RoleInfo{" +
+                "isManager=" + isManager +
+                ", managerId='" + managerId + '\'' +
+                ", token='" + token + '\'' +
+                '}';
+    }
 }

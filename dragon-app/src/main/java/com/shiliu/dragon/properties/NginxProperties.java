@@ -23,7 +23,7 @@ public class NginxProperties {
     //审计图片上传地址
     private String audit;
     //审计图片访问uri
-    private String auditUr;
+    private String auditUri;
 
 
     public String getPortrait() {
@@ -66,11 +66,11 @@ public class NginxProperties {
         this.audit = audit;
     }
 
-    public String getAuditUr() {
-        return auditUr;
+    public String getAuditUri() {
+        return auditUri;
     }
 
-    public void setAuditUr(String auditUr) {
-        this.auditUr = auditUr;
+    public void setAuditUri(String auditUri) {
+        this.auditUri = auditUri;
     }
 }

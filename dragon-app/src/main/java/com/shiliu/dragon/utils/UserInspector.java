@@ -114,7 +114,7 @@ public class UserInspector {
     }
 
     public static boolean isValidUserId(String userId) throws ValidateCodeException {
-        if (userId != null && userId.length() == 32) {
+        if (userId != null) {
             return true;
         }
         throw new ValidateCodeException(com.shiliu.dragon.utils.utils.JsonUtil.toJson(UserResponse.INVALIDPARAM));
